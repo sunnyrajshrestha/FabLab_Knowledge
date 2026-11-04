@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FabLab Tool Tutorials</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Workshop palette: ink + safety colours. Layout: top nav, one view at a time, stepper = scene left / instructions right */
+  --ink:#1A1A2E; --ink-2:#26263F; --paper:#F4F5F9; --card:#FFFFFF; --line:#E1E3EC; --muted:#565A73;
+  --laser:#FF5A1F; --amber:#FFC300; --teal:#13A588; --red:#E63946; --blue:#3A86FF; --violet:#8338EC;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --r:14px;
+  color-scheme: light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
+h1,h2,h3{font-family:var(--display);line-height:1.12;text-wrap:balance;margin:0}
+h2{font-size:clamp(1.5rem,3vw,2rem);font-weight:800}
+h3{font-size:1.1rem;font-weight:600}
+p{margin:0}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px;border-radius:6px}
+
+/* NAV */
+.top{background:var(--ink);color:#fff;position:sticky;top:0;z-index:10}
+.top-in{max-width:1180px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:18px}
+.brand{font-family:var(--display);font-weight:800;font-size:1.05rem;white-space:nowrap;display:flex;align-items:center;gap:10px}
+.brand i{width:14px;height:14px;border-radius:50%;background:var(--laser);box-shadow:0 0 0 4px rgba(255,90,31,.25);display:inline-block}
+nav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav a{color:#C9CBE0;text-decoration:none;padding:8px 12px;border-radius:999px;font-size:.92rem;white-space:nowrap}
+nav a:hover{color:#fff;background:var(--ink-2)}
+nav a[aria-current="page"]{background:#fff;color:var(--ink);font-weight:700}
+
+main{max-width:1180px;margin:0 auto;padding:28px 20px 60px}
+.view{display:none;flex-direction:column;gap:34px}
+.view.on{display:flex}
+.kicker{font-size:.8rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--laser)}
+.lede{color:var(--muted);max-width:68ch;margin-top:8px}
+.sec-head{display:flex;flex-direction:column;gap:6px}
+
+/* HERO */
+.hero{background:var(--ink);color:#fff;border-radius:22px;padding:34px;display:grid;grid-template-columns:1.3fr 1fr;gap:28px;align-items:center;overflow:hidden}
+.hero h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:800}
+.hero p{color:#D5D7EA;margin-top:12px;max-width:52ch}
+.hero .cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;padding:11px 18px;font-weight:700;text-decoration:none;background:var(--laser);color:#fff}
+.btn.ghost{background:transparent;color:inherit;box-shadow:inset 0 0 0 2px currentColor}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.hero svg{width:100%;height:auto}
+
+/* GRIDS & CARDS */
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,1fr)} .g3{grid-template-columns:repeat(3,1fr)} .g4{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:8px}
+.card p,.card li{color:var(--muted);font-size:.95rem}
+.card ul,.card ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.chip{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;color:#fff;font-family:var(--display);font-weight:800;flex:none}
+.card-h{display:flex;align-items:center;gap:12px}
+.tool-card{cursor:pointer;text-decoration:none;color:inherit;transition:transform .15s,box-shadow .15s}
+.tool-card:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(26,26,46,.12)}
+.tool-card .go{margin-top:auto;font-weight:700;color:var(--laser)}
+.dark{background:var(--ink);color:#fff;border-color:var(--ink)}
+.dark p,.dark li{color:#D5D7EA}
+.banner{background:var(--ink);color:var(--amber);border-radius:var(--r);padding:14px 18px;font-weight:700;text-align:center}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;text-align:center}
+.stat b{display:block;font-family:var(--display);font-size:1.9rem;color:var(--laser);font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:.9rem}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--line);background:var(--card)}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:.95rem}
+th{background:var(--ink);color:#fff;text-align:left;padding:10px 14px}
+td{padding:10px 14px;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+tr:nth-child(even) td{background:#F8F9FC}
+
+/* MATERIAL GUIDE */
+.mat h3{display:flex;align-items:center;gap:8px}
+.mat.ok h3{color:var(--teal)} .mat.eng h3{color:#9A7300} .mat.no h3{color:var(--red)}
+
+/* STEPPER */
+.tut{background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.rail{display:flex;gap:6px;padding:14px 16px;border-bottom:1px solid var(--line);overflow-x:auto}
+.rail button{flex:none;border:0;background:var(--paper);color:var(--muted);border-radius:999px;padding:6px 12px;font-size:.85rem;font-weight:700;display:flex;gap:6px;align-items:center}
+.rail button .n{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--line);color:var(--ink);font-size:.75rem}
+.rail button.done .n{background:var(--teal);color:#fff}
+.rail button.cur{background:var(--ink);color:#fff}
+.rail button.cur .n{background:var(--tc,var(--laser));color:#fff}
+.bar{height:4px;background:var(--line)} .bar i{display:block;height:100%;background:var(--tc,var(--laser));transition:width .4s}
+.stage{display:grid;grid-template-columns:1.1fr 1fr;min-height:390px}
+.scene{background:var(--ink);display:flex;align-items:center;justify-content:center;padding:14px;position:relative}
+.scene .art{width:100%;display:flex;justify-content:center}
+.scene svg{width:100%;max-width:520px;height:auto}
+.scene .tag{position:absolute;left:14px;top:12px;color:#B9BBD6;font-size:.8rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.info{padding:24px 26px;display:flex;flex-direction:column;gap:12px}
+.info .num{font-family:var(--display);font-weight:800;color:var(--tc,var(--laser));font-size:.95rem}
+.info h3{font-size:1.5rem;font-weight:800}
+.info ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.note{border-radius:10px;padding:10px 12px;font-size:.92rem;display:flex;gap:10px;align-items:flex-start}
+.note b{flex:none}
+.note.tip{background:#E8F7F3;color:#0B5E4E}
+.note.warn{background:#FDECEE;color:#9B1C27}
+.nav-row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:auto;padding-top:8px}
+.nav-row .count{color:var(--muted);font-size:.9rem;font-variant-numeric:tabular-nums}
+.subtabs{display:flex;gap:8px;flex-wrap:wrap}
+.subtabs button{border:2px solid var(--line);background:var(--card);border-radius:999px;padding:8px 16px;font-weight:700;color:var(--ink)}
+.subtabs button[aria-selected="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
+
+/* QUIZ */
+.quiz{cursor:pointer;text-align:left;border:1px solid var(--line)}
+.quiz .ans{display:none;font-weight:700}
+.quiz.show .ans{display:block}
+.quiz.show.safe{border-color:var(--teal)} .quiz.show.unsafe{border-color:var(--red)}
+.safe .ans{color:var(--teal)} .unsafe .ans{color:var(--red)}
+
+/* SCENE ANIMATION */
+.scene text{font-family:var(--body);fill:#fff}
+.pop{transform-box:fill-box;transform-origin:center;animation:pop .5s cubic-bezier(.3,1.4,.6,1) both}
+@keyframes pop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.fade{animation:fade .6s both} @keyframes fade{from{opacity:0}to{opacity:1}}
+.draw{stroke-dasharray:var(--len,700);stroke-dashoffset:var(--len,700);animation:draw var(--dur,1.6s) ease-in-out forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.mv{animation:mv var(--dur,1.6s) ease-in-out both;animation-iteration-count:var(--it,1);animation-direction:var(--dir,normal)}
+@keyframes mv{from{transform:translate(0,0)}to{transform:translate(var(--dx,0px),var(--dy,0px))}}
+.spin{transform-box:fill-box;transform-origin:center;animation:spin var(--dur,1s) linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.turn{transform-box:fill-box;transform-origin:center;animation:turn 1.6s ease-in-out both}
+@keyframes turn{from{transform:rotate(0)}to{transform:rotate(var(--deg,120deg))}}
+.run{stroke-dasharray:8 6;animation:run .35s linear infinite}
+@keyframes run{to{stroke-dashoffset:-14}}
+.stopping{stroke-dasharray:8 6;animation:stopping 3.2s cubic-bezier(.1,.75,.3,1) forwards}
+@keyframes stopping{to{stroke-dashoffset:-150}}
+.pulse{animation:pulse .9s ease-in-out infinite alternate}
+@keyframes pulse{from{opacity:.25}to{opacity:1}}
+.rise{animation:rise 2.4s ease-out infinite}
+@keyframes rise{from{transform:translateY(0);opacity:.8}to{transform:translateY(-70px);opacity:0}}
+.shake{animation:shake .1s linear infinite alternate}
+@keyframes shake{from{transform:translateY(-3px)}to{transform:translateY(3px)}}
+.jit{animation:jit .08s linear infinite alternate}
+@keyframes jit{from{transform:translate(-1.5px,-1px)}to{transform:translate(1.5px,1px)}}
+
+@media (prefers-reduced-motion: reduce){
+  .scene *{animation:none !important}
+  .draw{stroke-dashoffset:0}
+  .tool-card{transition:none}
+}
+
+/* RESPONSIVE */
+@media (max-width:900px){
+  .hero,.stage{grid-template-columns:1fr}
+  .g3,.g4,.stats{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:560px){
+  .g2,.g3,.g4,.stats{grid-template-columns:1fr}
+  .hero{padding:22px}
+  .info{padding:18px}
+  .brand span{display:none}
+}
+
+/* === ADDED: sander + cute projects === */
+.spinrev{transform-box:fill-box;transform-origin:center;animation:spin var(--dur,.5s) linear infinite reverse}
+.spindown{transform-box:fill-box;transform-origin:center;animation:spindown 3.2s cubic-bezier(.1,.75,.3,1) forwards}
+@keyframes spindown{to{transform:rotate(-900deg)}}
+.eyeblink{transform-box:fill-box;transform-origin:center;animation:eyeblink 4s infinite}
+@keyframes eyeblink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+.wiggle{transform-box:fill-box;transform-origin:bottom center;animation:wiggle 2.4s ease-in-out infinite alternate}
+@keyframes wiggle{from{transform:rotate(-4deg)}to{transform:rotate(4deg)}}
+.new-badge{display:inline-block;background:var(--laser);color:#fff;font-size:.72rem;font-weight:700;letter-spacing:.08em;border-radius:999px;padding:2px 8px;vertical-align:middle;margin-left:6px}
+.proj-art{background:var(--ink);border-radius:var(--r);display:flex;align-items:center;justify-content:center;padding:12px}
+.proj-art svg{width:100%;max-width:380px;height:auto}
+.projtabs{display:flex;gap:8px;flex-wrap:wrap}
+.projtabs button{border:2px solid var(--line);background:var(--card);border-radius:999px;padding:8px 16px;font-weight:700;color:var(--ink)}
+.projtabs button[aria-selected="true"]{background:var(--teal);border-color:var(--teal);color:#fff}
+@media (prefers-reduced-motion: reduce){ .proj-art *{animation:none!important} }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <div class="brand"><i></i><span>FabLab 408</span></div>
+    <nav aria-label="Sections">
+      <a href="#start">Start here</a>
+      <a href="#beamo">Beamo laser</a>
+      <a href="#bandsaw">Bandsaw</a>
+      <a href="#power-tools">Power tools</a>
+      <a href="#sander">Disc &amp; belt sander</a>
+      <a href="#machines">More machines</a>
+      <a href="#make-for-good">Make for good</a>
+      <a href="#bug-bnb">Bug B&amp;B project</a>
+      <a href="#cute-projects">Desk Buddy &amp; Plant Pal</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<!-- ================= START ================= -->
+<section class="view" id="v-start" data-view="start">
+  <div class="hero">
+    <div>
+      <div class="kicker">CSII FabLab · Room 408 · SDG workshop</div>
+      <h1>Make It Real: lasers, saws and power tools for good</h1>
+      <p>Step-by-step, animated tutorials for the machines you'll use to turn SDG ideas into real prototypes. Learn the rules, pick a tool, and follow each step at your own pace.</p>
+      <div class="cta">
+        <a class="btn" href="#beamo">Start with the laser</a>
+        <a class="btn ghost" href="#bug-bnb">See the project</a>
+      </div>
+    </div>
+    <svg viewBox="0 0 360 240" aria-hidden="true">
+      <rect x="40" y="40" width="280" height="160" rx="16" fill="#26263F"/>
+      <rect x="60" y="60" width="240" height="120" rx="6" fill="#33334F"/>
+      <line x1="60" y1="100" x2="300" y2="100" stroke="#55577A" stroke-width="6"/>
+      <path d="M110 150 C 130 90, 200 90, 250 140" fill="none" stroke="#FF5A1F" stroke-width="3" class="draw" style="--len:260;--dur:3s"/>
+      <g><rect x="-10" y="-10" width="20" height="20" rx="4" fill="#FFC300"/><animateMotion dur="3s" fill="freeze" path="M110 150 C 130 90, 200 90, 250 140"/></g>
+      <circle cx="320" cy="40" r="22" fill="#FF5A1F"/><circle cx="40" cy="200" r="16" fill="#13A588"/>
+    </svg>
+  </div>
+
+  <div class="sec-head"><div class="kicker">Pick a tutorial</div><h2>Three tools, one maker</h2></div>
+  <div class="grid g3">
+    <a class="card tool-card" href="#beamo"><div class="card-h"><span class="chip" style="background:var(--laser)">01</span><h3>Beamo laser cutter</h3></div><p>Cut, score and engrave plywood, acrylic, card and leather. 10 animated steps.</p><span class="go">Open tutorial →</span></a>
+    <a class="card tool-card" href="#bandsaw"><div class="card-h"><span class="chip" style="background:#C99A00">02</span><h3>Bandsaw</h3></div><p>Straight cuts and curves in thick wood and plastic. 9 animated steps.</p><span class="go">Open tutorial →</span></a>
+    <a class="card tool-card" href="#power-tools"><div class="card-h"><span class="chip" style="background:var(--blue)">03</span><h3>Power tools</h3></div><p>Drill/driver, orbital sander and jigsaw. 18 animated steps.</p><span class="go">Open tutorial →</span></a>
+  </div>
+  <div class="grid g2">
+    <a class="card tool-card" href="#sander"><div class="card-h"><span class="chip" style="background:var(--teal)">04</span><h3>Disc &amp; belt sander <span class="new-badge">NEW</span></h3></div><p>Round, smooth and shape edges on the Polo MM491G combo sander. 9 animated steps.</p><span class="go">Open tutorial →</span></a>
+    <a class="card tool-card" href="#cute-projects"><div class="card-h"><span class="chip" style="background:var(--violet)">★</span><h3>Desk Buddy &amp; Plant Pal <span class="new-badge">NEW</span></h3></div><p>Two cute, safe build projects using the bandsaw, Beamo, drill and sander.</p><span class="go">See the projects →</span></a>
+  </div>
+
+  <div class="sec-head"><div class="kicker">Before you touch anything</div><h2>The golden rules of Room 408</h2></div>
+  <div class="grid g3">
+    <div class="card"><div class="card-h"><span class="chip" style="background:var(--laser)">1</span><h3>Tap the dog, every visit</h3></div><p>Sign in each time by tapping your phone on the NFC tag on our mascot dog's collar by the door.</p></div>
+    <div class="card"><div class="card-h"><span class="chip" style="background:var(--blue)">2</span><h3>Scan before you use</h3></div><p>Log every session on the 3D printer, laser, 3D scanner, power tools and wet lab via the machine's QR sticker.</p></div>
+    <div class="card"><div class="card-h"><span class="chip" style="background:var(--red)">3</span><h3>Request form for risky work</h3></div><p>Bandsaw, drilling and power tools need a request form in advance, approved and supervised in person by your professor, plus Sunny.</p></div>
+    <div class="card"><div class="card-h"><span class="chip" style="background:var(--teal)">4</span><h3>Tell us 2 days ahead</h3></div><p>For other project work, email or LINE Sunny at least 2 days ahead (1 day minimum), during working hours.</p></div>
+    <div class="card"><div class="card-h"><span class="chip" style="background:var(--violet)">5</span><h3>Makers only</h3></div><p>The lab is not a meeting, Zoom or study room for work unrelated to the FabLab.</p></div>
+    <div class="card"><div class="card-h"><span class="chip" style="background:#C99A00">6</span><h3>Never guess, ask</h3></div><p>Unsure about a material, setting or tool? Stop and ask. Guessing breaks machines and people.</p></div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h3>Dress for the machine</h3>
+      <p>Our dress code is about function: anything loose, exposed or dangling can be grabbed, burned or cut.</p>
+      <ul><li><b>Closed-toe shoes:</b> dropped tools and hot parts hurt</li><li><b>Long trousers:</b> protect legs from chips and sparks</li><li><b>Nothing loose:</b> no scarves, lanyards, open jackets or dangling jewellery</li><li><b>Hair tied back:</b> long hair and spinning tools never mix</li></ul>
+    </div>
+    <div class="card">
+      <h3>Personal protective equipment</h3>
+      <p>Grab the right gear before you start.</p>
+      <ul><li><b>Safety glasses:</b> saws, drills, sanders, rotary tools</li><li><b>Ear protection:</b> loud tools and long sessions</li><li><b>Dust mask:</b> sanding, especially MDF</li><li><b>Gloves, it depends:</b> yes for hot or sharp handling, <b>no</b> near spinning blades or bits</li></ul>
+    </div>
+  </div>
+
+  <div class="sec-head"><div class="kicker">If something goes wrong</div><h2>Stop · Contain · Care · Report</h2></div>
+  <div class="grid g4">
+    <div class="card"><div class="card-h"><span class="chip" style="background:var(--red)">1</span><h3>Stop</h3></div><p>Switch off or pause the machine. Know where the power switch and pause button are before you start.</p></div>
+    <div class="card"><div class="card-h"><span class="chip" style="background:var(--laser)">2</span><h3>Contain</h3></div><p>Small laser flame? Keep the lid closed and pause. Know where the fire extinguisher is.</p></div>
+    <div class="card"><div class="card-h"><span class="chip" style="background:var(--teal)">3</span><h3>Care</h3></div><p>Use the first aid kit for minor cuts and burns. Cool burns under running water.</p></div>
+    <div class="card"><div class="card-h"><span class="chip" style="background:var(--blue)">4</span><h3>Report</h3></div><p>Tell Sunny about every incident or near miss, even small ones. That is how the lab gets safer.</p></div>
+  </div>
+  <div class="banner">Never work alone on risky tools · Never rush · Never use a machine you haven't been shown</div>
+
+  <div class="sec-head"><div class="kicker">After today</div><h2>How to use the FabLab</h2></div>
+  <div class="grid g4">
+    <div class="card"><h3>Plan ahead</h3><p>Email or LINE Sunny at least 2 days before project work (1 day minimum), during working hours.</p></div>
+    <div class="card"><h3>Risky tools</h3><p>Bandsaw, drilling and power tools: file the request form; your professor approves and supervises with Sunny.</p></div>
+    <div class="card"><h3>Get advice</h3><p>Book Sunny's time for consultation on projects, assignments or competitions.</p></div>
+    <div class="card"><h3>Need materials?</h3><p>Request well in advance so purchases can be budgeted.</p></div>
+  </div>
+  <p class="lede">Contact: sunny.s@chula.ac.th · FabLab Room 408, Chaloem Rajakumari 60 Building</p>
+</section>
+
+<!-- ================= BEAMO ================= -->
+<section class="view" id="v-beamo" data-view="beamo">
+  <div class="sec-head"><div class="kicker">Tutorial 01</div><h2>FLUX Beamo laser cutter, step by step</h2><p class="lede">A desktop CO2 laser that focuses an invisible infrared beam into a tiny, very hot spot. It can <b>cut</b> right through, <b>score</b> a thin line, or <b>engrave</b> images like a printer.</p></div>
+  <div class="stats">
+    <div class="stat"><b>30 W</b><span>CO2 laser</span></div>
+    <div class="stat"><b>300 × 210</b><span>mm work area</span></div>
+    <div class="stat"><b>45 mm</b><span>max material height</span></div>
+    <div class="stat"><b>≈5 mm</b><span>cut depth, varies by material</span></div>
+  </div>
+  <div class="tut" data-tut="beamo" style="--tc:var(--laser)"></div>
+  <div class="sec-head"><h2>Laser material guide</h2><p class="lede">When in doubt, leave it out and ask Sunny.</p></div>
+  <div class="grid g3">
+    <div class="card mat ok"><h3>✓ Go: cut and engrave</h3><ul><li>Plywood, MDF, balsa</li><li>Cast acrylic</li><li>Paper, cardboard</li><li>Veg-tanned leather</li><li>Felt, cotton fabric</li><li>Cork, laser-safe rubber</li></ul></div>
+    <div class="card mat eng"><h3>◐ Engrave only</h3><ul><li>Glass</li><li>Stone, slate, tile</li><li>Anodised aluminium</li><li>Coated or painted metal</li><li>Bare metal: Beamo can't cut it</li></ul></div>
+    <div class="card mat no"><h3>✕ Never</h3><ul><li>PVC / vinyl: toxic chlorine gas</li><li>Polycarbonate: burns, discolours</li><li>ABS: toxic fumes, melts</li><li>HDPE, foam: melts, catches fire</li><li>Fibreglass, carbon fibre</li><li>Unknown material</li></ul></div>
+  </div>
+  <div class="sec-head"><h2>What can you make?</h2></div>
+  <div class="grid g3">
+    <div class="card"><h3>Packaging prototypes</h3><p>Test eco-packaging from cardboard before ordering thousands.</p></div>
+    <div class="card"><h3>IoT enclosures</h3><p>Finger-joint boxes for sensors, like a smart-bin monitor.</p></div>
+    <div class="card"><h3>Signs and wayfinding</h3><p>Engraved signage, plant tags and labels for community spaces.</p></div>
+    <div class="card"><h3>Social-enterprise merch</h3><p>Keychains, coasters and jewellery to fund a cause.</p></div>
+    <div class="card"><h3>Architecture models</h3><p>Scale models to pitch a greener campus or city block.</p></div>
+    <div class="card"><h3>Learning kits</h3><p>Puzzles and teaching aids for schools and NGOs.</p></div>
+  </div>
+</section>
+
+<!-- ================= BANDSAW ================= -->
+<section class="view" id="v-bandsaw" data-view="bandsaw">
+  <div class="sec-head"><div class="kicker" style="color:#9A7300">Tutorial 02</div><h2>Bandsaw, step by step</h2><p class="lede">A continuous loop of toothed steel runs around two wheels and always cuts downward, pressing the work onto the table. Great for curves, straight rip cuts and stock too thick for the laser. <b>Needs an approved request form and your professor plus Sunny present.</b></p></div>
+  <div class="tut" data-tut="bandsaw" style="--tc:#E0A800"></div>
+  <div class="grid g3">
+    <div class="card"><h3>Furniture and repairs</h3><p>Curved legs, chair backs, and repairs that give old furniture a second life.</p></div>
+    <div class="card"><h3>Reclaimed wood</h3><p>Resaw pallets and old beams into usable boards (SDG 12).</p></div>
+    <div class="card dark"><h3>Laser or bandsaw?</h3><p>Laser: thin, precise, detailed 2D parts. Bandsaw: thick stock, big curves, fast rough shaping.</p></div>
+  </div>
+</section>
+
+<!-- ================= POWER TOOLS ================= -->
+<section class="view" id="v-power-tools" data-view="power-tools">
+  <div class="sec-head"><div class="kicker" style="color:var(--blue)">Tutorial 03</div><h2>Power tools, step by step</h2><p class="lede">Pick a tool. Every power tool session needs an approved request form, supervision, and a QR log.</p></div>
+  <div class="subtabs" role="tablist" aria-label="Power tool">
+    <button role="tab" id="tab-drill" aria-selected="true" data-sub="drill">Drill / driver</button>
+    <button role="tab" id="tab-sander" aria-selected="false" data-sub="sander">Orbital sander</button>
+    <button role="tab" id="tab-jigsaw" aria-selected="false" data-sub="jigsaw">Jigsaw</button>
+  </div>
+  <div class="tut" data-tut="drill" id="pt-tut" style="--tc:var(--blue)"></div>
+  <div class="sec-head"><h2>Quick tips for the small tools</h2></div>
+  <div class="grid g4">
+    <div class="card"><h3>Rotary tool</h3><p>Glasses on, clamp small parts, let it reach speed before touching the work.</p></div>
+    <div class="card"><h3>Heat gun</h3><p>Point away from people and cords. The nozzle stays hot after you switch it off.</p></div>
+    <div class="card"><h3>Hot glue gun</h3><p>Always rest it on its stand. Glue stays hot long after it looks set.</p></div>
+    <div class="card"><h3>Soldering iron</h3><p>Use the stand, never touch the tip, work with fume extraction and wash hands after.</p></div>
+  </div>
+</section>
+
+<!-- ================= MACHINES ================= -->
+<section class="view" id="v-machines" data-view="machines">
+  <div class="sec-head"><div class="kicker" style="color:var(--violet)">The rest of the lab</div><h2>More machines in Room 408</h2></div>
+  <div class="grid g3">
+    <div class="card"><h3>3D printers (e.g. CR-10 Pro)</h3><p>Layer-by-layer plastic parts. Hot nozzle and bed: don't touch while printing.</p></div>
+    <div class="card"><h3>CNC machines</h3><p>Computer-controlled milling of wood and plastics. Clamp securely, stay clear while running.</p></div>
+    <div class="card"><h3>3D scanner</h3><p>Capture real objects as 3D models to modify, repair or reprint.</p></div>
+    <div class="card"><h3>Electronics stations</h3><p>Arduino, sensors, soldering. Check polarity and power off before rewiring.</p></div>
+    <div class="card"><h3>Wet lab (hot plate stirrer)</h3><p>Mixing and heating. The surface stays hot after switching off; log every use.</p></div>
+    <div class="card dark"><h3>Sunny, your engineer</h3><p>Book a consultation for projects, assignments or competitions.</p></div>
+  </div>
+  <div class="sec-head"><h2>Which tool should I use?</h2></div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>I need to make…</th><th>Go to</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>Flat, precise 2D parts, engraving</td><td><b>Beamo laser</b></td><td>Coasters, boxes, signs</td></tr>
+      <tr><td>Complex 3D shapes</td><td><b>3D printer</b></td><td>Clips, brackets, product shells</td></tr>
+      <tr><td>Thick wood, big curves</td><td><b>Bandsaw</b></td><td>Furniture parts, blanks</td></tr>
+      <tr><td>Holes, screws, assembly</td><td><b>Drill / driver</b></td><td>Joining frames and panels</td></tr>
+      <tr><td>Copy a real object</td><td><b>3D scanner</b></td><td>Spare parts, ergonomic grips</td></tr>
+      <tr><td>Make it smart</td><td><b>Electronics station</b></td><td>Sensors, lights, data loggers</td></tr>
+    </tbody>
+  </table></div>
+  <p class="lede">Real projects mix tools: laser-cut box + 3D-printed bracket + Arduino inside = a working product.</p>
+</section>
+
+<!-- ================= MAKE FOR GOOD ================= -->
+<section class="view" id="v-make-for-good" data-view="make-for-good">
+  <div class="sec-head"><div class="kicker" style="color:var(--teal)">Why it matters</div><h2>Why SDG students should care about a FabLab</h2><p class="lede">Ideas change the world only when people can hold, test and use them. A FabLab lets you build a working prototype in days, not months.</p></div>
+  <div class="grid g3">
+    <div class="card"><h3>SDG 9 · Innovation</h3><p>Rapid prototyping lowers the cost of testing a new product or service.</p></div>
+    <div class="card"><h3>SDG 12 · Consumption</h3><p>Upcycle scrap wood, cardboard and e-waste into useful products.</p></div>
+    <div class="card"><h3>SDG 11 · Cities</h3><p>Build sensor housings, signage and models for smarter communities.</p></div>
+    <div class="card"><h3>SDG 3 · Health</h3><p>Make low-cost assistive grips, holders and device enclosures.</p></div>
+    <div class="card"><h3>SDG 4 · Education</h3><p>Create learning kits and hands-on teaching models.</p></div>
+    <div class="card"><h3>SDG 7 &amp; 13 · Energy and climate</h3><p>Prototype solar lamp casings and climate monitoring devices.</p></div>
+  </div>
+  <div class="sec-head"><h2>Project ideas you could prototype here</h2></div>
+  <div class="grid g3">
+    <div class="card"><h3>Smart recycling bin</h3><p>Laser-cut enclosure + fill-level sensor. SDG 11, 12.</p></div>
+    <div class="card"><h3>Water filter housing</h3><p>Low-cost filter casing for testing. SDG 6.</p></div>
+    <div class="card"><h3>Assistive grips</h3><p>Scan a hand, print a custom grip. SDG 3, 10.</p></div>
+    <div class="card"><h3>Solar lamp casing</h3><p>Wood or acrylic shell for a solar LED kit. SDG 7.</p></div>
+    <div class="card"><h3>Plant tags from scrap</h3><p>Engraved tags from offcuts for community gardens. SDG 15.</p></div>
+    <div class="card"><h3>STEM learning kit</h3><p>Puzzle kits explaining climate or energy. SDG 4, 13.</p></div>
+  </div>
+  <div class="sec-head"><h2>Quick quiz: safe or not safe?</h2><p class="lede">Tap a card to reveal the answer.</p></div>
+  <div class="grid g3" id="quiz">
+    <button class="card quiz unsafe"><p>Cutting a PVC sheet on the Beamo because it looks like acrylic</p><span class="ans">Not safe: PVC releases toxic chlorine gas.</span></button>
+    <button class="card quiz unsafe"><p>Wearing gloves while using the bandsaw for a better grip</p><span class="ans">Not safe: gloves can be caught near the blade.</span></button>
+    <button class="card quiz safe"><p>Pausing the laser and keeping the lid shut when a small flame appears</p><span class="ans">Safe: that's the right response.</span></button>
+    <button class="card quiz unsafe"><p>Holding a small block by hand while drilling it</p><span class="ans">Not safe: always clamp the work.</span></button>
+    <button class="card quiz safe"><p>Running a test square on scrap before cutting the final sheet</p><span class="ans">Safe: best practice.</span></button>
+    <button class="card quiz unsafe"><p>Leaving the laser running to grab coffee: it's only 10 minutes</p><span class="ans">Not safe: never leave the laser unattended.</span></button>
+  </div>
+  <div class="sec-head"><h2>Mini challenge: Make for Good in 45 minutes</h2></div>
+  <div class="grid g4">
+    <div class="card"><div class="card-h"><span class="chip" style="background:var(--blue)">1</span><h3>Team up</h3></div><p>Groups of 3 to 4. Pick one SDG your team cares about.</p></div>
+    <div class="card"><div class="card-h"><span class="chip" style="background:var(--violet)">2</span><h3>Design</h3></div><p>Sketch a keychain, coaster or mini sign that tells your SDG story. Max 80 × 80 mm.</p></div>
+    <div class="card"><div class="card-h"><span class="chip" style="background:var(--laser)">3</span><h3>Make</h3></div><p>Cut and engrave it on the Beamo on 3 mm plywood, with Sunny's guidance.</p></div>
+    <div class="card"><div class="card-h"><span class="chip" style="background:#C99A00">4</span><h3>Pitch</h3></div><p>60 seconds: what problem, who it helps, how it could become a product.</p></div>
+  </div>
+  <div class="banner">Prizes for: Best SDG story · Best design · Safest maker (yes, really)</div>
+</section>
+
+<!-- ================= BUG B&B ================= -->
+<section class="view" id="v-bug-bnb" data-view="bug-bnb">
+  <div class="sec-head"><div class="kicker">Hands-on project</div><h2>Build a Bug B&amp;B insect hotel</h2><p class="lede">Bees and other pollinators need places to nest. Each team builds a wall-mounted insect hotel for the campus garden, using every tool from the tutorials. SDG 15 · Life on Land.</p></div>
+  <div class="grid g2">
+    <div class="card">
+      <h3>At a glance</h3>
+      <ul><li><b>Teams of 4 to 5</b>, everyone uses every tool</li><li><b>About 2.5 hours</b>: 3 stations + assembly + pitch</li><li><b>Size:</b> 156 mm wide × 150 mm tall × about 93 mm deep</li><li><b>Tools:</b> bandsaw, Beamo, drill/driver, sander</li><li><b>Laser file:</b> BugBnB_laser_template.svg (one 300 × 210 mm sheet)</li></ul>
+    </div>
+    <div class="card" style="align-items:center">
+      <svg viewBox="0 0 220 210" width="100%" style="max-width:300px" aria-label="Front view of the insect hotel">
+        <rect x="31" y="10" width="158" height="28" rx="3" fill="#C68B4E"/><text x="110" y="29" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">Laser name plate</text>
+        <rect x="32" y="45" width="156" height="150" fill="#EBD3B0" stroke="#8B5A2B"/>
+        <rect x="32" y="45" width="18" height="150" fill="#D9A066" stroke="#8B5A2B"/><rect x="170" y="45" width="18" height="150" fill="#D9A066" stroke="#8B5A2B"/>
+        <rect x="50" y="45" width="120" height="18" fill="#D9A066" stroke="#8B5A2B"/><rect x="50" y="177" width="120" height="18" fill="#D9A066" stroke="#8B5A2B"/>
+        <rect x="50" y="118" width="120" height="3.2" fill="#8B5A2B"/><rect x="108.4" y="63" width="3.2" height="114" fill="#8B5A2B"/>
+        <g font-size="9" font-weight="700" fill="#5A3A1A" text-anchor="middle"><text x="79" y="94">Drilled block</text><text x="140" y="94">Bamboo/straws</text><text x="79" y="152">Cardboard</text><text x="140" y="152">Pine cones</text></g>
+      </svg>
+    </div>
+  </div>
+  <div class="sec-head"><h2>Materials and cut list (per team)</h2></div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Part</th><th>Qty</th><th>Size</th><th>Made with</th></tr></thead>
+    <tbody>
+      <tr><td><b>Sides</b></td><td>2</td><td>150 × 90 mm, 18 mm pine</td><td>Bandsaw (fence)</td></tr>
+      <tr><td><b>Top + bottom</b></td><td>2</td><td>120 × 90 mm, 18 mm pine</td><td>Bandsaw (fence)</td></tr>
+      <tr><td><b>Nesting block</b></td><td>1</td><td>45 × 45 × 86 mm pine</td><td>Bandsaw, then drill</td></tr>
+      <tr><td><b>Back panel</b></td><td>1</td><td>156 × 150 mm, 3 mm plywood</td><td>Beamo (cut + engrave)</td></tr>
+      <tr><td><b>Dividers A + B</b></td><td>2</td><td>120 × 86 and 114 × 86 mm, slotted</td><td>Beamo (cut)</td></tr>
+      <tr><td><b>Name plate</b></td><td>1</td><td>150 × 30 mm, 3 mm plywood</td><td>Beamo (engrave + cut)</td></tr>
+      <tr><td><b>Fixings</b></td><td>12</td><td>8 × 3.5×30 mm + 4 × 3.5×16 mm screws</td><td>Drill / driver</td></tr>
+    </tbody>
+  </table></div>
+  <p class="lede">Stock per team: one 600 mm length of 18 × 90 mm untreated pine, a 45 × 45 mm offcut, one 300 × 210 mm sheet of 3 mm plywood. Fillers: bamboo or paper straws, corrugated cardboard, pine cones. Use untreated wood only.</p>
+
+  <div class="sec-head"><h2>How the session runs</h2><p class="lede">Three stations, each team rotates every 30 minutes. Each station follows the matching tutorial above.</p></div>
+  <div class="grid g3">
+    <a class="card tool-card" href="#bandsaw"><div class="card-h"><span class="chip" style="background:#C99A00">A</span><h3>Bandsaw · 30 min</h3></div><ol><li>Mark cuts with square and pencil</li><li>Supervisor sets fence and guard height</li><li>Feed slowly with a push stick</li><li>Cut 2 sides, top, bottom, nesting block</li><li>Switch off, wait for full stop, clear offcuts</li></ol><span class="go">Bandsaw tutorial →</span></a>
+    <a class="card tool-card" href="#beamo"><div class="card-h"><span class="chip" style="background:var(--laser)">B</span><h3>Beamo · 30 min</h3></div><ol><li>Open the BugBnB template in Beam Studio</li><li>Type your team name on the plate</li><li>Check layers: red cut, blue score, black engrave</li><li>Camera preview, frame, then run</li><li>Watch the whole job; wait for fumes to clear</li></ol><span class="go">Laser tutorial →</span></a>
+    <a class="card tool-card" href="#power-tools"><div class="card-h"><span class="chip" style="background:var(--blue)">C</span><h3>Power tools · 30 min</h3></div><ol><li>Clamp each piece before drilling</li><li>Sand all edges smooth</li><li>Drill 4 to 8 mm holes in the block, not through</li><li>Drill 2.5 mm pilot holes in the sides</li><li>Remove battery to change bits</li></ol><span class="go">Power tools tutorial →</span></a>
+  </div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Time</th><th>Activity</th><th>Length</th></tr></thead>
+    <tbody>
+      <tr><td>0:00</td><td>Safety brief + PPE check</td><td>15 min</td></tr>
+      <tr><td>0:15</td><td>Station rotations 1 · 2 · 3</td><td>90 min</td></tr>
+      <tr><td>1:45</td><td>Assemble and fill</td><td>25 min</td></tr>
+      <tr><td>2:10</td><td>60-second pitch + reflection</td><td>20 min</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h3>Assembly (25 min)</h3>
+      <ol><li>Screw sides to top and bottom (2 × 30 mm screws per joint)</li><li>Slot dividers A and B together, push into the frame</li><li>Screw the back panel on with 4 × 16 mm screws</li><li>Fix the name plate on the top front edge</li><li>Fill: drilled block, straws, cardboard rolls, pine cones</li><li>Mount 1 to 2 m high in a sunny spot, sheltered from rain</li></ol>
+    </div>
+    <div class="card">
+      <h3>Assessment</h3>
+      <ul><li><b>Safety and PPE:</b> 30%</li><li><b>Build accuracy and finish:</b> 25%</li><li><b>Teamwork</b> (everyone used every tool): 20%</li><li><b>SDG pitch and reflection:</b> 25%</li></ul>
+      <p><b>Reflect:</b> Which tool surprised you? What would you change to sell this product?</p>
+    </div>
+  </div>
+  <div class="card dark">
+    <h3>Facilitator prep checklist</h3>
+    <ul><li><b>1 week before:</b> professor files the request form for bandsaw and power tools and confirms in-person supervision</li><li><b>Materials:</b> pine plank, 45 mm offcuts, 3 mm plywood, screws, straws, cardboard, pine cones</li><li><b>Pre-mark stock:</b> mark every bandsaw cut so the queue moves fast</li><li><b>Laser ready:</b> load the template in Beam Studio and test-cut one set the day before</li><li><b>PPE count:</b> glasses and dust masks for every student; clamps and depth tape at Station C</li><li><b>On the day:</b> everyone taps the NFC dog; every tool use logged via its QR sticker</li></ul>
+  </div>
+</section>
+
+<!-- ================= SANDER (added) ================= -->
+<section class="view" id="v-sander" data-view="sander">
+  <div class="sec-head"><div class="kicker" style="color:var(--teal)">Tutorial 04 <span class="new-badge">NEW</span></div><h2>Disc &amp; belt sander, step by step</h2><p class="lede">Room 408's <b>Polo MM491G</b> is a bench combo sander: a spinning <b>disc</b> on the side for rounding curves and corners, and a moving <b>belt</b> on top for flat faces and straight edges. It's how you make a project look finished and feel safe to hold. <b>Needs an approved request form and supervision, like all power tools.</b></p></div>
+  <div class="stats">
+    <div class="stat"><b>150 mm</b><span>sanding disc</span></div>
+    <div class="stat"><b>4 × 36 in</b><span>sanding belt (≈100 × 915 mm)</span></div>
+    <div class="stat"><b>370 W</b><span>motor</span></div>
+    <div class="stat"><b>0–45°</b><span>tilting disc table + miter gauge</span></div>
+  </div>
+  <div class="tut" data-tut="sander" style="--tc:var(--teal)"></div>
+  <div class="grid g3">
+    <div class="card"><h3>Disc = curves and corners</h3><p>Round the ears on a Desk Buddy, soften box corners, shape convex curves. Always on the downward side.</p></div>
+    <div class="card"><h3>Belt = flat and straight</h3><p>Flatten an end, square up an edge, flush a joint, add a chamfer. Always against the work support.</p></div>
+    <div class="card dark"><h3>Orbital or bench sander?</h3><p>Orbital sander (Power tools tab): you move the tool over big surfaces. Bench sander: you move small parts to the machine for fast shaping.</p></div>
+  </div>
+  <div class="sec-head"><h2>Where it's used in the real world</h2></div>
+  <div class="grid g4">
+    <div class="card"><h3>Toys and kids' products</h3><p>Rounded, splinter-free edges are a safety requirement, not decoration.</p></div>
+    <div class="card"><h3>Furniture making</h3><p>Shaping legs, fitting joints and finishing edges before oiling.</p></div>
+    <div class="card"><h3>Product prototypes</h3><p>Taking a rough bandsaw shape to a smooth, presentable model for a pitch.</p></div>
+    <div class="card"><h3>Upcycling</h3><p>Turning scrap wood into products that feel brand new (SDG 12).</p></div>
+  </div>
+</section>
+
+<!-- ================= CUTE PROJECTS (added) ================= -->
+<section class="view" id="v-cute-projects" data-view="cute-projects">
+  <div class="sec-head"><div class="kicker" style="color:var(--violet)">Hands-on projects <span class="new-badge">NEW</span></div><h2>Desk Buddy &amp; Plant Pal</h2><p class="lede">Two cute builds that every pair can take home. Each one uses the <b>bandsaw</b>, <b>Beamo laser</b>, <b>drill/driver</b> and the new <b>disc &amp; belt sander</b>. Pick one per pair. Both use straight, beginner-friendly bandsaw cuts, and small parts are pre-cut by staff to keep fingers safe.</p></div>
+  <div class="projtabs" role="tablist" aria-label="Project">
+    <button role="tab" aria-selected="true" data-proj="buddy">Desk Buddy</button>
+    <button role="tab" aria-selected="false" data-proj="plant">Plant Pal</button>
+  </div>
+
+  <!-- ===== DESK BUDDY ===== -->
+  <div class="proj" data-proj-panel="buddy" style="display:flex;flex-direction:column;gap:28px">
+    <div class="grid g2">
+      <div class="card">
+        <h3>Desk Buddy: a phone stand + pen holder with a face</h3>
+        <p>A chunky cat, bear or shiba head stands at the back of a pine base. Your phone rests on the front ledge and leans on the head; pens go in the block beside it. The laser engraves the face and your name.</p>
+        <ul><li><b>Pairs</b>, one Desk Buddy each pair (or each student if time allows)</li><li><b>About 2.5 hours</b></li><li><b>Size:</b> 160 mm wide × 90 mm deep × about 118 mm tall</li><li><b>SDG 12:</b> made from offcuts, built to last instead of a plastic stand</li><li><b>Laser files:</b> DeskBuddy_head_outlines.svg (print at 100% as a tracing template) and DeskBuddy_plywood.svg</li></ul>
+      </div>
+      <div class="proj-art">
+        <svg viewBox="0 0 380 260" aria-label="Desk Buddy cat with phone and pens">
+          <rect x="30" y="200" width="320" height="36" rx="5" fill="#D9A066" stroke="#8B5A2B"/>
+          <rect x="30" y="182" width="320" height="22" rx="4" fill="#C68B4E" stroke="#8B5A2B"/>
+          <rect x="70" y="186" width="240" height="14" rx="3" fill="#EBD3B0"/><text x="190" y="197" text-anchor="middle" font-size="10" font-weight="700" fill="#5A3A1A">YOUR NAME</text>
+          <g transform="translate(70 44)">
+            <path d="M10,45.2 L14,5 L36,24 Q45,21 54,24 L76,5 L80,45.2 A38,38 0 1 1 10,45.2 Z" transform="scale(1.6)" fill="#D9A066" stroke="#8B5A2B" stroke-width="1.2"/>
+            <path d="M10,45.2 L14,5 L36,24 Q45,21 54,24 L76,5 L80,45.2 A38,38 0 1 1 10,45.2 Z" transform="translate(13 15) scale(1.31)" fill="#EBD3B0"/>
+            <g class="eyeblink"><circle cx="52" cy="94" r="7" fill="#2B1A0E"/><circle cx="54" cy="91" r="2" fill="#fff"/></g>
+            <g class="eyeblink"><circle cx="92" cy="94" r="7" fill="#2B1A0E"/><circle cx="94" cy="91" r="2" fill="#fff"/></g>
+            <ellipse cx="38" cy="112" rx="9" ry="5" fill="#F29B9B" opacity=".8"/><ellipse cx="106" cy="112" rx="9" ry="5" fill="#F29B9B" opacity=".8"/>
+            <path d="M68 104 l4 4 l4 -4 Z" fill="#2B1A0E"/><path d="M64 112 q4 5 8 0 q4 5 8 0" stroke="#2B1A0E" stroke-width="2" fill="none" stroke-linecap="round"/>
+          </g>
+          <rect x="250" y="110" width="72" height="90" rx="5" fill="#D9A066" stroke="#8B5A2B"/>
+          <g class="wiggle"><rect x="265" y="60" width="9" height="56" rx="3" fill="#FF5A1F"/><path d="M265 60 l4.5 -10 l4.5 10 Z" fill="#FFC300"/></g>
+          <g class="wiggle" style="animation-delay:.6s"><rect x="292" y="70" width="9" height="46" rx="3" fill="#3A86FF"/><path d="M292 70 l4.5 -10 l4.5 10 Z" fill="#FFC300"/></g>
+          <rect x="196" y="58" width="40" height="126" rx="8" fill="#26263F" stroke="#9AA0B5" transform="rotate(12 216 184)"/>
+          <rect x="201" y="66" width="30" height="104" rx="4" fill="#3A86FF" opacity=".55" transform="rotate(12 216 184)"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="sec-head"><h2>Materials and cut list (per Desk Buddy)</h2></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Part</th><th>Qty</th><th>Size</th><th>Made with</th></tr></thead>
+      <tbody>
+        <tr><td><b>Base</b></td><td>1</td><td>160 × 90 mm, 18 mm pine</td><td>Bandsaw crosscut (fence) → belt sander</td></tr>
+        <tr><td><b>Head blank → head</b></td><td>1</td><td>110 × 90 mm blank, traced animal outline about 90 × 100 mm</td><td>Bandsaw crosscut, then bandsaw the outline → disc sander</td></tr>
+        <tr><td><b>Phone ledge</b></td><td>1</td><td>160 mm long, 18 × 18 mm pine strip</td><td>Bandsaw crosscut → belt sander</td></tr>
+        <tr><td><b>Pen block</b></td><td>1</td><td>45 × 45 × 90 mm pine</td><td><b>Pre-cut by staff</b> (too small to cut safely) → drill</td></tr>
+        <tr><td><b>Face plate</b></td><td>1</td><td>Animal outline scaled to about 74 × 82 mm, 3 mm plywood</td><td>Beamo (cut + engrave face)</td></tr>
+        <tr><td><b>Name tag</b></td><td>1</td><td>150 × 14 mm, 3 mm plywood</td><td>Beamo (engrave + cut)</td></tr>
+        <tr><td><b>Fixings</b></td><td>6 + glue</td><td>6 × 3.5×30 mm wood screws, wood glue</td><td>Drill / driver</td></tr>
+      </tbody>
+    </table></div>
+    <p class="lede">Stock per Desk Buddy: about 300 mm of 18 × 90 mm untreated pine, a 160 mm length of 18 × 18 mm pine strip, one pre-cut 45 × 45 × 90 mm block, and a share of a 300 × 210 mm sheet of 3 mm plywood.</p>
+
+    <div class="sec-head"><h2>Build steps by station</h2></div>
+    <div class="grid g4">
+      <a class="card tool-card" href="#beamo"><div class="card-h"><span class="chip" style="background:var(--laser)">1</span><h3>Beamo</h3></div><ol><li>Open DeskBuddy_plywood.svg in Beam Studio</li><li>Keep your animal's face plate, delete the others</li><li>Type your name on the name tag</li><li>Cut + engrave on 3 mm plywood</li></ol><span class="go">Laser tutorial →</span></a>
+      <a class="card tool-card" href="#bandsaw"><div class="card-h"><span class="chip" style="background:#C99A00">2</span><h3>Bandsaw</h3></div><ol><li>Trace your animal from the printed template onto the head blank</li><li>Crosscut base (160), head blank (110) and ledge (160)</li><li>Cut the head outline slowly, relief cuts at the ears</li><li>Stay 1 mm outside the line: the sander does the rest</li></ol><span class="go">Bandsaw tutorial →</span></a>
+      <a class="card tool-card" href="#sander"><div class="card-h"><span class="chip" style="background:var(--teal)">3</span><h3>Disc &amp; belt sander</h3></div><ol><li>Disc: sand the head's round outline to the line</li><li>Belt: flatten the head's bottom so it stands square</li><li>Belt: soften all edges of base, ledge and pen block</li><li>Hand-sand the dip between the ears</li></ol><span class="go">Sander tutorial →</span></a>
+      <a class="card tool-card" href="#power-tools"><div class="card-h"><span class="chip" style="background:var(--blue)">4</span><h3>Drill &amp; assemble</h3></div><ol><li>Clamp the pen block upright; drill 2 × 12 mm holes, 40 mm deep (tape flag)</li><li>Drill 6 × 4 mm holes through the base</li><li>Screw head, pen block and ledge on from below</li><li>Glue face plate and name tag on</li></ol><span class="go">Power tools tutorial →</span></a>
+    </div>
+    <div class="grid g2">
+      <div class="card">
+        <h3>Where everything goes (top view of the base)</h3>
+        <ul><li><b>Ledge:</b> along the front edge, full width. 2 screws from below, 30 mm in from each end</li><li><b>Head:</b> back-left corner, flush with the back edge. 2 screws from below into its flat bottom</li><li><b>Pen block:</b> back-right, standing upright. 2 screws from below</li><li>Drill 2.5 mm pilot holes into the parts so the screws don't split the pine</li></ul>
+      </div>
+      <div class="card dark">
+        <h3>Make it yours</h3>
+        <p>Three animals are in the laser file: <b>cat</b>, <b>bear</b> and <b>shiba</b>. Finished early? Engrave a tiny SDG icon or slogan on the back of the head.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PLANT PAL ===== -->
+  <div class="proj" data-proj-panel="plant" style="display:none;flex-direction:column;gap:28px">
+    <div class="grid g2">
+      <div class="card">
+        <h3>Plant Pal: a smiling planter for a succulent</h3>
+        <p>A small square pine box with a laser-engraved face, a laser-cut bottom with drainage holes and a name stake for your plant. It holds a small potted succulent or cactus.</p>
+        <ul><li><b>Pairs</b>, one Plant Pal each pair</li><li><b>About 2.5 hours</b></li><li><b>Size:</b> 120 × 120 mm, 93 mm tall; fits a pot up to about 80 mm wide</li><li><b>SDG 15 + SDG 3:</b> greener desks and better wellbeing</li><li><b>Laser file:</b> PlantPal_plywood.svg</li></ul>
+      </div>
+      <div class="proj-art">
+        <svg viewBox="0 0 380 260" aria-label="Plant Pal planter with a face and succulent">
+          <g class="wiggle" style="animation-duration:3s"><ellipse cx="190" cy="92" rx="16" ry="34" fill="#3BB273"/><ellipse cx="160" cy="100" rx="14" ry="28" fill="#2E9A61" transform="rotate(-30 160 100)"/><ellipse cx="220" cy="100" rx="14" ry="28" fill="#2E9A61" transform="rotate(30 220 100)"/><ellipse cx="140" cy="118" rx="12" ry="22" fill="#4CC38A" transform="rotate(-60 140 118)"/><ellipse cx="240" cy="118" rx="12" ry="22" fill="#4CC38A" transform="rotate(60 240 118)"/></g>
+          <g><rect x="252" y="70" width="14" height="90" rx="2" fill="#EBD3B0" transform="rotate(10 259 160)"/><text x="259" y="110" font-size="9" font-weight="700" fill="#5A3A1A" text-anchor="middle" transform="rotate(-80 259 110)">MR. SPIKY</text></g>
+          <rect x="100" y="126" width="180" height="108" rx="6" fill="#D9A066" stroke="#8B5A2B"/>
+          <line x1="127" y1="126" x2="127" y2="234" stroke="#8B5A2B" opacity=".5"/><line x1="253" y1="126" x2="253" y2="234" stroke="#8B5A2B" opacity=".5"/>
+          <rect x="140" y="144" width="100" height="70" rx="12" fill="#EBD3B0" stroke="#8B5A2B"/>
+          <g class="eyeblink"><circle cx="172" cy="172" r="7" fill="#2B1A0E"/><circle cx="174" cy="169" r="2" fill="#fff"/></g>
+          <g class="eyeblink"><circle cx="208" cy="172" r="7" fill="#2B1A0E"/><circle cx="210" cy="169" r="2" fill="#fff"/></g>
+          <ellipse cx="158" cy="188" rx="9" ry="5" fill="#F29B9B" opacity=".8"/><ellipse cx="222" cy="188" rx="9" ry="5" fill="#F29B9B" opacity=".8"/>
+          <path d="M180 186 q10 10 20 0" stroke="#2B1A0E" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <rect x="100" y="234" width="180" height="6" rx="2" fill="#C68B4E"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="sec-head"><h2>Materials and cut list (per Plant Pal)</h2></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Part</th><th>Qty</th><th>Size</th><th>Made with</th></tr></thead>
+      <tbody>
+        <tr><td><b>Front + back</b></td><td>2</td><td>120 × 90 mm, 18 mm pine</td><td>Bandsaw crosscut (fence) → belt sander</td></tr>
+        <tr><td><b>Sides</b></td><td>2</td><td>84 × 90 mm, 18 mm pine (fit between front and back)</td><td>Bandsaw crosscut (fence) → belt sander</td></tr>
+        <tr><td><b>Bottom</b></td><td>1</td><td>120 × 120 mm, 3 mm plywood, 3 drainage + 4 screw holes</td><td>Beamo (cut)</td></tr>
+        <tr><td><b>Face plate</b></td><td>1</td><td>100 × 70 mm, 3 mm plywood, rounded corners</td><td>Beamo (cut + engrave face)</td></tr>
+        <tr><td><b>Plant name stakes</b></td><td>2</td><td>110 × 20 mm, pointed, 3 mm plywood</td><td>Beamo (engrave + cut)</td></tr>
+        <tr><td><b>Fixings</b></td><td>12 + glue</td><td>8 × 3.5×30 mm + 4 × 3.5×16 mm wood screws, wood glue</td><td>Drill / driver</td></tr>
+      </tbody>
+    </table></div>
+    <p class="lede">Stock per Plant Pal: about 420 mm of 18 × 90 mm untreated pine and a share of a 300 × 210 mm sheet of 3 mm plywood. Bring a small potted succulent.</p>
+
+    <div class="sec-head"><h2>Build steps by station</h2></div>
+    <div class="grid g4">
+      <a class="card tool-card" href="#beamo"><div class="card-h"><span class="chip" style="background:var(--laser)">1</span><h3>Beamo</h3></div><ol><li>Open PlantPal_plywood.svg in Beam Studio</li><li>Type your plant's name on the stakes</li><li>Cut + engrave bottom, face plate and stakes on 3 mm plywood</li></ol><span class="go">Laser tutorial →</span></a>
+      <a class="card tool-card" href="#bandsaw"><div class="card-h"><span class="chip" style="background:#C99A00">2</span><h3>Bandsaw</h3></div><ol><li>Mark cuts with a square</li><li>Supervisor sets the fence</li><li>Crosscut 2 × 120 mm (front/back) and 2 × 84 mm (sides)</li><li>Straight cuts only: the easiest bandsaw job</li></ol><span class="go">Bandsaw tutorial →</span></a>
+      <a class="card tool-card" href="#sander"><div class="card-h"><span class="chip" style="background:var(--teal)">3</span><h3>Disc &amp; belt sander</h3></div><ol><li>Belt: square up every cut end</li><li>Belt: light chamfer on the top edges</li><li>Disc: round the 4 outside corners after assembly</li><li>Check each wall is smooth to touch</li></ol><span class="go">Sander tutorial →</span></a>
+      <a class="card tool-card" href="#power-tools"><div class="card-h"><span class="chip" style="background:var(--blue)">4</span><h3>Drill &amp; assemble</h3></div><ol><li>Drill 4 × 4 mm holes through front and back (2 per joint)</li><li>Clamp, 2.5 mm pilot holes into the side ends, screw together</li><li>Screw the bottom on through its laser holes (16 mm screws)</li><li>Glue the face plate on, add pot, plant and stake</li></ol><span class="go">Power tools tutorial →</span></a>
+    </div>
+  </div>
+
+  <div class="sec-head"><h2>How the session runs (both projects)</h2><p class="lede">The bandsaw → sander → drill order matters, because each step needs the parts from the one before. The laser runs in parallel.</p></div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Time</th><th>Activity</th><th>Length</th></tr></thead>
+    <tbody>
+      <tr><td>0:00</td><td>Safety brief, PPE check, pairs pick Desk Buddy or Plant Pal (and an animal)</td><td>15 min</td></tr>
+      <tr><td>0:15</td><td>Round 1: half the pairs at the bandsaw, half at the Beamo</td><td>25 min</td></tr>
+      <tr><td>0:40</td><td>Round 2: swap bandsaw ↔ Beamo</td><td>25 min</td></tr>
+      <tr><td>1:05</td><td>Round 3: disc &amp; belt sander (queue) + orbital sander / hand sanding</td><td>25 min</td></tr>
+      <tr><td>1:30</td><td>Round 4: drill and assemble</td><td>30 min</td></tr>
+      <tr><td>2:00</td><td>Finish: glue faces, plant succulents, 60-second "meet my buddy" pitch</td><td>20 min</td></tr>
+      <tr><td>2:20</td><td>Clean-up and tool log-off</td><td>10 min</td></tr>
+    </tbody>
+  </table></div>
+  <div class="grid g2">
+    <div class="card">
+      <h3>Assessment</h3>
+      <ul><li><b>Safety and PPE:</b> 30%</li><li><b>Build accuracy and finish</b> (smooth, rounded, no splinters): 25%</li><li><b>Teamwork</b> (both partners used every tool): 20%</li><li><b>Cute factor + SDG pitch:</b> 25%</li></ul>
+    </div>
+    <div class="card dark">
+      <h3>Facilitator prep checklist</h3>
+      <ul><li><b>1 week before:</b> professor files the request form for bandsaw, sander and power tools</li><li><b>Pre-cut:</b> 45 × 45 × 90 mm pen blocks (staff only)</li><li><b>Print:</b> DeskBuddy_head_outlines.svg at 100% as tracing templates</li><li><b>Laser:</b> test-cut one face plate, name tag and Plant Pal set the day before</li><li><b>Sander:</b> fresh 80/120-grit belt and disc, dust extraction connected</li><li><b>Plants:</b> small potted succulents for Plant Pal pairs</li></ul>
+    </div>
+  </div>
+</section>
+</main>
+
+<script>
+/* ---------- SCENE HELPERS ---------- */
+const S = (inner) => `<svg viewBox="0 0 420 280" aria-hidden="true">${inner}</svg>`;
+const dl = (s) => `animation-delay:${s}s`;
+const C = {laser:"#FF5A1F",amber:"#FFC300",teal:"#13A588",red:"#E63946",blue:"#3A86FF",violet:"#8338EC",wood:"#D9A066",woodD:"#8B5A2B",steel:"#9AA0B5",panel:"#33334F",panel2:"#45476A",white:"#FFFFFF",soft:"#B9BBD6"};
+const label = (x,y,t,o={}) => `<text x="${x}" y="${y}" font-size="${o.size||13}" font-weight="${o.w||700}" text-anchor="${o.a||'middle'}" fill="${o.fill||'#fff'}" ${o.cls?`class="${o.cls}" style="${o.st||''}"`:''}>${t}</text>`;
+const check = (x,y,d=0,c=C.teal) => `<g class="pop" style="${dl(d)}"><circle cx="${x}" cy="${y}" r="14" fill="${c}"/><path d="M${x-6} ${y} l4 5 l8 -10" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>`;
+const cross = (x,y,d=0) => `<g class="pop" style="${dl(d)}"><circle cx="${x}" cy="${y}" r="14" fill="${C.red}"/><path d="M${x-5} ${y-5} l10 10 M${x+5} ${y-5} l-10 10" stroke="#fff" stroke-width="3" stroke-linecap="round"/></g>`;
+const checklist = (title, items, color=C.teal) => S(`
+  <rect x="95" y="18" width="230" height="250" rx="14" fill="#fff"/>
+  <rect x="165" y="8" width="90" height="22" rx="6" fill="${C.steel}"/>
+  ${label(210,56,title,{fill:'#1A1A2E',size:15})}
+  ${items.map((t,i)=>`<rect x="115" y="${78+i*36}" width="20" height="20" rx="4" fill="none" stroke="#C9CBE0" stroke-width="2"/>
+  <path d="M118 ${88+i*36} l5 6 l10 -12" stroke="${color}" stroke-width="3.5" fill="none" stroke-linecap="round" class="draw" style="--len:30;--dur:.35s;${dl(.3+i*.45)}"/>
+  ${label(145,93+i*36,t,{a:'start',fill:'#1A1A2E',size:13,w:400})}`).join('')}
+`);
+const bed = (x=70,y=50,w=280,h=190) => `<defs><pattern id="hc" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="5" cy="5" r="1.4" fill="#5C5F85"/></pattern></defs>
+  <rect x="${x-14}" y="${y-14}" width="${w+28}" height="${h+28}" rx="14" fill="${C.panel}"/>
+  <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" fill="#2A2A44"/><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" fill="url(#hc)"/>`;
+const blade = (cls="run",extra="") => `<line x1="200" y1="58" x2="200" y2="200" stroke="${C.steel}" stroke-width="5"/><line x1="200" y1="58" x2="200" y2="200" stroke="#fff" stroke-width="2" class="${cls}" style="${extra}"/>`;
+const saw = (guardY=88, inner="", bladeCls="run", bladeStyle="") => S(`
+  <rect x="300" y="20" width="44" height="235" rx="10" fill="${C.panel2}"/>
+  <rect x="170" y="20" width="174" height="44" rx="12" fill="${C.panel2}"/>
+  <rect x="170" y="196" width="174" height="59" rx="12" fill="${C.panel2}"/>
+  ${blade(bladeCls,bladeStyle)}
+  ${inner}
+  <rect x="40" y="150" width="340" height="12" rx="3" fill="${C.steel}"/>
+  <rect x="190" y="64" width="20" height="${guardY-64}" fill="${C.amber}" class="guard"/>
+  <rect x="186" y="${guardY-6}" width="28" height="8" rx="2" fill="#E0A800"/>
+`);
+const drill = (inner="", bitCls="run") => `
+  <g ${inner}>
+    <rect x="60" y="88" width="140" height="54" rx="16" fill="${C.blue}"/>
+    <path d="M105 140 L150 140 L140 218 L98 218 Z" fill="#2A6FDC"/>
+    <rect x="84" y="216" width="76" height="28" rx="6" fill="#1A1A2E" stroke="${C.soft}"/>
+    <rect x="128" y="146" width="12" height="20" rx="3" fill="${C.amber}"/>
+    <rect x="200" y="98" width="34" height="34" rx="5" fill="${C.steel}"/>
+    <rect x="234" y="110" width="66" height="10" fill="#C9CBE0"/>
+    <line x1="234" y1="115" x2="300" y2="115" stroke="#6B6F8E" stroke-width="10" class="${bitCls}" style="stroke-dasharray:6 6"/>
+  </g>`;
+
+/* ---------- TUTORIAL DATA ---------- */
+const T = {
+beamo: [
+ {t:"Check your material is laser-safe", s:()=>S(`
+    <rect x="40" y="70" width="100" height="110" rx="6" fill="${C.wood}"/>${label(90,205,"Plywood")}${check(90,125,.3)}
+    <rect x="160" y="70" width="100" height="110" rx="6" fill="#9AD1F5" opacity=".8"/>${label(210,205,"Cast acrylic")}${check(210,125,.7)}
+    <rect x="280" y="70" width="100" height="110" rx="6" fill="#D5D8E0"/>${label(330,205,"PVC")}${cross(330,125,1.1)}
+    ${label(210,245,"When in doubt, leave it out",{fill:C.amber,cls:'fade',st:dl(1.5)})}`),
+  pts:["Sign in by tapping the NFC dog and scan the Beamo's QR sticker to log your session.","Identify your material. Use the material guide below: plywood, MDF, cast acrylic, card, leather and felt are fine.","Bring material that is flat and no thicker than about 5 mm if you want to cut through it."],
+  warn:"Never laser PVC, vinyl, polycarbonate, ABS or unknown plastics. Some release toxic gas."},
+ {t:"Design your file", s:()=>S(`
+    <rect x="70" y="30" width="280" height="175" rx="10" fill="#fff"/><path d="M50 215 L370 215 L350 235 L70 235 Z" fill="${C.steel}"/>
+    <rect x="100" y="60" width="120" height="110" rx="10" fill="none" stroke="${C.red}" stroke-width="3" class="draw" style="--len:440"/>
+    <path d="M250 150 C 250 90, 320 80, 325 60 C 335 110, 300 150, 250 150 Z" fill="none" stroke="${C.red}" stroke-width="3" class="draw" style="--len:260;${dl(.8)}"/>
+    <text x="160" y="122" font-size="26" font-weight="800" text-anchor="middle" fill="#1A1A2E" class="fade" style="${dl(1.6)}">SDG</text>
+    ${label(140,262,"red line = cut",{fill:C.red})}${label(290,262,"black fill = engrave",{fill:C.soft})}`),
+  pts:["Draw in Illustrator, Inkscape, Canva or any vector tool. Work in millimetres.","Keep parts inside 300 × 210 mm, the Beamo's work area.","Use one colour per job type, e.g. red for cut lines, blue for score lines, black fills for engraving.","Export as SVG or DXF. Images (JPG, PNG) can be engraved too."],
+  tip:"Convert text to outlines/paths before exporting so fonts don't change."},
+ {t:"Import into Beam Studio and set layers", s:()=>"",
+  pts:["Open Beam Studio and import your SVG or DXF.","Each colour becomes its own layer. Set each layer to Cut, Score or Engrave.","Choose your material from the presets to load starting power and speed.","Cut = high power, slow. Score = low power, fast. Engrave = image sweeps."],
+  tip:"Start with the preset, then run a small test square on scrap to fine-tune."},
+ {t:"Turn on: ventilation first, then Beamo", s:()=>S(`
+    <circle cx="110" cy="130" r="60" fill="${C.panel}"/>
+    <g class="spin" style="--dur:.8s"><path d="M110 130 L110 80 A50 50 0 0 1 150 105 Z" fill="${C.teal}"/><path d="M110 130 L153 155 A50 50 0 0 1 107 180 Z" fill="${C.teal}"/><path d="M110 130 L67 155 A50 50 0 0 1 70 100 Z" fill="${C.teal}"/></g>
+    ${label(110,220,"1. Ventilation ON")}
+    <rect x="220" y="80" width="160" height="100" rx="12" fill="${C.panel}"/>
+    <rect x="240" y="98" width="80" height="50" rx="4" fill="#5DADE2" class="fade" style="${dl(1.2)}"/>
+    <circle cx="350" cy="123" r="14" fill="${C.teal}" class="pulse" style="${dl(1.2)}"/>
+    ${label(300,220,"2. Beamo ON",{cls:'fade',st:dl(1)})}`),
+  pts:["Make sure the exhaust fan or air filter is running before you laser anything.","Power on the Beamo and wait until the touch screen is ready.","Connect to the machine in Beam Studio (Wi-Fi or cable)."],
+  warn:"Don't run a job if the screen shows an error. Tell Sunny."},
+ {t:"Place your material flat on the bed", s:()=>S(`${bed()}
+    <rect x="-150" y="80" width="200" height="130" rx="3" fill="${C.wood}" class="mv" style="--dx:240px;--dur:1.4s"/>
+    <path d="M70 252 h280" stroke="${C.amber}" stroke-width="2"/>${label(210,272,"300 × 210 mm max · 45 mm max height",{fill:C.amber,size:12})}`),
+  pts:["Open the lid and lay the material flat on the honeycomb bed.","Warped sheet? Hold it flat with weights placed outside the cutting path.","Keep it within the work area and under the max material height."],
+  tip:"Protective film on acrylic can stay on for cutting; peel it after for a clean finish."},
+ {t:"Use the camera preview to position", s:()=>S(`
+    <rect x="50" y="30" width="320" height="220" rx="10" fill="#2A2A44" stroke="${C.soft}" stroke-dasharray="6 6"/>
+    <rect x="90" y="70" width="240" height="150" rx="3" fill="${C.wood}" opacity=".9"/>
+    <g class="mv" style="--dx:-120px;--dy:-60px;--dur:1.6s;transform:translate(120px,60px)"><rect x="140" y="105" width="90" height="80" rx="8" fill="none" stroke="${C.red}" stroke-width="3"/><path d="M228 180 l20 22 l-8 2 l6 12 l-6 3 l-6 -12 l-6 6 Z" fill="#fff"/></g>
+    ${label(210,270,"Drag your design onto the material",{fill:C.soft,size:12})}`),
+  pts:["Close the lid, then click Preview in Beam Studio to take a camera photo of the bed.","Drag your design so it sits fully on the material, away from the edges.","Nest parts close together to save material."]},
+ {t:"Set the focus height", s:()=>S(`
+    <rect x="60" y="30" width="300" height="16" rx="4" fill="${C.steel}"/>
+    <g class="mv" style="--dy:62px"><rect x="175" y="46" width="70" height="60" rx="8" fill="${C.laser}"/><rect x="200" y="106" width="20" height="16" fill="${C.steel}"/></g>
+    <rect x="195" y="184" width="30" height="0" fill="${C.amber}"/>
+    <rect x="232" y="122" width="18" height="62" rx="3" fill="${C.amber}" class="pop" style="${dl(.2)}"/>${label(300,160,"focus tool",{fill:C.amber,size:12})}
+    <rect x="70" y="184" width="280" height="18" rx="2" fill="${C.wood}"/>
+    ${label(210,240,"lens to material = correct focus distance",{fill:C.soft,size:12})}`),
+  pts:["The laser is only sharp at one distance from the material.","Use the focus tool (or the autofocus module, if fitted) to set the laser head height for your material.","Re-focus every time you change material thickness."],
+  tip:"Bad focus = wide, weak burns and cuts that don't go through."},
+ {t:"Frame it before you fire", s:()=>S(`${bed()}
+    <rect x="100" y="80" width="220" height="140" rx="3" fill="${C.wood}"/>
+    <rect x="140" y="105" width="140" height="90" fill="none" stroke="${C.amber}" stroke-width="2" stroke-dasharray="6 5"/>
+    <g><rect x="-9" y="-9" width="18" height="18" rx="3" fill="${C.laser}"/><animateMotion dur="3s" repeatCount="indefinite" path="M140 105 H280 V195 H140 Z"/></g>
+    ${label(210,262,"laser head traces the outline · laser OFF",{fill:C.amber,size:12})}`),
+  pts:["Click Frame. The head traces the outer edge of your job without firing.","Check the whole job lands on the material and avoids holes or edges.","Adjust and frame again if needed."]},
+ {t:"Start the job and stay with it", s:()=>S(`${bed()}
+    <rect x="100" y="80" width="220" height="140" rx="3" fill="${C.wood}"/>
+    <path d="M150 190 C 150 120, 260 100, 270 100 C 280 160, 220 200, 150 190 Z" fill="none" stroke="#3B2410" stroke-width="3" class="draw" style="--len:400;--dur:4s"/>
+    <g><circle r="12" fill="${C.red}" opacity=".35" class="pulse"/><circle r="5" fill="${C.amber}"/><animateMotion dur="4s" fill="freeze" path="M150 190 C 150 120, 260 100, 270 100 C 280 160, 220 200, 150 190 Z"/></g>
+    ${label(210,30,"LID CLOSED · EXHAUST ON · EYES ON",{fill:C.amber,size:12})}`),
+  pts:["Close the lid and press Start in Beam Studio (or on the machine).","Watch every second. Never walk away from a running laser.","Small flame? Pause and keep the lid shut. If it doesn't die out, call Sunny."],
+  warn:"Lasers start fires. Paper and thin wood at slow speeds flare up most easily."},
+ {t:"Wait, remove, clean up", s:()=>S(`${bed()}
+    ${[0,1,2].map(i=>`<path d="M${170+i*40} 190 c -10 -15 10 -25 0 -40" stroke="${C.soft}" stroke-width="4" fill="none" stroke-linecap="round" class="rise" style="${dl(i*.5)}"/>`).join('')}
+    <rect x="160" y="150" width="100" height="70" rx="6" fill="${C.wood}" class="mv" style="--dy:-110px;--dur:1.2s;${dl(2)}"/>
+    ${check(330,80,2.6)}`),
+  pts:["When the job finishes, wait a moment for the fumes to clear before opening the lid.","Lift your parts out. Push stubborn pieces out gently, don't force them.","Remove small offcuts and debris from the honeycomb: they're fire fuel.","Put scraps in the bin, close the lid, and leave the station clean."],
+  tip:"Test fit before cutting a whole set: one test piece saves a full sheet."}
+],
+bandsaw: [
+ {t:"Paperwork and people first", s:()=>checklist("Before the bandsaw",["Request form approved","Professor present","Sunny present","QR scanned to log use","Shown how to use it"]),
+  pts:["Bandsaw use needs a request form filed in advance.","Your professor must approve it and supervise in person, together with Sunny.","Scan the bandsaw's QR sticker to log the session."],
+  warn:"No form, no supervisor, no bandsaw. No exceptions."},
+ {t:"Gear up", s:()=>checklist("PPE check",["Safety glasses ON","NO gloves","Hair tied back","Sleeves rolled, nothing loose","Closed-toe shoes"],C.amber),
+  pts:["Safety glasses on.","No gloves: they can be pulled into the blade.","Tie hair back, roll up sleeves, remove lanyards and jewellery."]},
+ {t:"Inspect the saw", s:()=>saw(88,`<g class="mv" style="--dy:90px;--dur:2s;--it:infinite;--dir:alternate"><circle cx="200" cy="80" r="22" fill="none" stroke="${C.amber}" stroke-width="5"/><line x1="216" y1="96" x2="236" y2="116" stroke="${C.amber}" stroke-width="6" stroke-linecap="round"/></g>${label(90,110,"teeth · cracks",{size:12})}${label(90,128,"tension · guards",{size:12})}`,"","stroke-dasharray:8 6"),
+  pts:["Machine OFF. Check the blade for cracks or missing teeth.","Check the blade guards and table insert are in place.","Clear the table of tools and offcuts.","Anything wrong? Don't use it. Tell Sunny."]},
+ {t:"Mark your cut and plan curves", s:()=>S(`
+    <rect x="60" y="50" width="300" height="180" rx="6" fill="${C.wood}"/>
+    <path d="M90 200 C 140 70, 260 70, 330 200" fill="none" stroke="#1A1A2E" stroke-width="3" class="draw" style="--len:360"/>
+    ${[[150,60],[210,40],[270,60]].map((p,i)=>`<line x1="${p[0]}" y1="50" x2="${p[0]+(i-1)*8}" y2="${p[1]+60}" stroke="${C.red}" stroke-width="3" stroke-dasharray="6 5" class="fade" style="${dl(1.6+i*.3)}"/>`).join('')}
+    ${label(210,262,"dashed red = relief cuts for tight curves",{fill:C.red,size:12})}`),
+  pts:["Draw your cut line clearly with a pencil and square.","For tight curves, make straight relief cuts first so the blade doesn't bind.","Plan cuts so you never need to back out of a long curve."]},
+ {t:"Lower the upper guard", s:()=>saw(88,`<rect x="80" y="130" width="100" height="20" fill="${C.wood}"/><g class="mv" style="--dy:40px;${dl(.3)}"><rect x="190" y="70" width="20" height="18" fill="${C.amber}"/><rect x="186" y="82" width="28" height="8" rx="2" fill="#E0A800"/></g><g class="pop" style="${dl(1.6)}"><line x1="230" y1="124" x2="230" y2="132" stroke="${C.amber}" stroke-width="2"/>${label(270,132,"≈ 6 mm",{fill:C.amber,size:13})}</g>`,"","stroke-dasharray:8 6").replace('class="guard"','class="guard"').replace(`height="${128-64}" fill="${C.amber}" class="guard"`,`height="64" fill="${C.amber}" class="guard"`),
+  pts:["Set the upper blade guard just above the workpiece, about 6 mm clearance.","Less exposed blade = less risk and a straighter cut.","Your supervisor checks the setting before you start."]},
+ {t:"Set the fence for straight cuts", s:()=>S(`
+    <rect x="40" y="40" width="340" height="200" rx="8" fill="${C.steel}"/>
+    <rect x="196" y="40" width="8" height="200" fill="#1A1A2E"/>
+    <rect x="70" y="80" width="110" height="120" fill="${C.wood}"/><line x1="180" y1="80" x2="180" y2="200" stroke="#1A1A2E" stroke-width="2" stroke-dasharray="5 4"/>
+    <rect x="360" y="50" width="20" height="180" rx="4" fill="${C.amber}" class="mv" style="--dx:-150px"/>
+    ${label(210,265,"Top view: fence guides the board parallel to the blade",{fill:C.soft,size:12})}`),
+  pts:["For straight cuts, use the rip fence so the board stays parallel to the blade.","Your supervisor sets and locks the fence at your line.","Curves are cut freehand, slowly, following your line."]},
+ {t:"Power on and let it reach speed", s:()=>saw(128,`<rect x="80" y="130" width="100" height="20" fill="${C.wood}"/><rect x="350" y="200" width="40" height="40" rx="8" fill="${C.teal}" class="pop"/>${label(370,226,"ON",{size:12})}`,"run",dl(.6)).replace(`height="${128-64}"`,`height="64"`),
+  pts:["Stand slightly to one side of the blade, not directly in line.","Switch on and wait until the blade is at full speed before touching the work.","Listen: clicking or rattling means stop and call staff."]},
+ {t:"Feed slowly with a push stick", s:()=>saw(128,`<rect x="160" y="40" width="80" height="110" fill="${C.red}" opacity=".18"/>${label(200,36,"RED ZONE",{fill:C.red,size:11})}
+    <g class="mv" style="--dx:70px;--dur:3s;--it:infinite"><rect x="40" y="130" width="120" height="20" fill="${C.wood}"/><rect x="10" y="112" width="60" height="16" rx="4" fill="${C.amber}" transform="rotate(12 40 120)"/></g>`).replace(`height="${128-64}"`,`height="64"`),
+  pts:["Feed steadily and slowly. Let the blade do the work, don't force it.","Use a push stick for the last part of the cut and for small pieces.","Keep hands out of the red zone around the blade and never in line with it.","Stuck in a curve? Switch off, wait for full stop, then back out."],
+  warn:"Never reach across or behind a running blade."},
+ {t:"Switch off, wait, then clear", s:()=>saw(128,`<rect x="80" y="130" width="100" height="20" fill="${C.wood}"/><rect x="350" y="200" width="40" height="40" rx="8" fill="${C.red}"/>${label(370,226,"OFF",{size:12})}${label(100,100,"wait…",{fill:C.soft,cls:'fade'})}<g class="pop" style="${dl(3.2)}">${label(100,124,"STOPPED",{fill:C.teal,size:15})}</g>`,"stopping").replace(`height="${128-64}"`,`height="64"`),
+  pts:["Switch off at the end of every cut.","Wait until the blade has completely stopped before touching offcuts.","Brush sawdust away with a brush, never your hand.","Log off and leave the saw clean for the next maker."]}
+],
+drill: [
+ {t:"Before you pick it up", s:()=>checklist("Drill/driver check",["Request form approved","Supervisor present","QR scanned","Glasses ON, no gloves","Hair tied, sleeves secured"],C.blue),
+  pts:["Power tools need an approved request form and supervision.","Scan the tool's QR sticker to log your session.","Glasses on, hair tied back, no loose clothing. No gloves near the spinning bit."]},
+ {t:"Choose the right bit", s:()=>S(`
+    ${[["Twist",90],["Brad-point",170],["Spade",250],["PH2 driver",330]].map((b,i)=>`
+      <g class="${i===1?'pop':''}" style="${i===1?dl(.8):''}">${i===1?`<rect x="${b[1]-38}" y="40" width="76" height="190" rx="10" fill="${C.blue}" opacity=".35"/>`:''}</g>
+      <rect x="${b[1]-6}" y="60" width="12" height="120" fill="${C.steel}"/>
+      <path d="M${b[1]-6} 180 L${b[1]} 200 L${b[1]+6} 180 Z" fill="${C.steel}"/>
+      ${i<2?`<path d="M${b[1]-6} 90 l12 12 M${b[1]-6} 110 l12 12 M${b[1]-6} 130 l12 12 M${b[1]-6} 150 l12 12" stroke="#6B6F8E" stroke-width="3"/>`:''}
+      ${i===2?`<path d="M${b[1]-18} 150 h36 l-18 40 Z" fill="${C.steel}"/>`:''}
+      ${label(b[1],222,b[0],{size:12})}`).join('')}`),
+  pts:["Twist bit: general holes in wood and plastic.","Brad-point bit: clean, accurate holes in wood.","Spade bit: large holes in wood.","Driver bit: match the screw head (PH2 is the most common)."],
+  tip:"Pilot hole for a 3.5 mm wood screw: about 2.5 mm."},
+ {t:"Battery out, fit the bit", s:()=>S(`
+    <circle cx="160" cy="140" r="90" fill="${C.steel}"/><circle cx="160" cy="140" r="30" fill="#2A2A44"/>
+    ${[0,120,240].map((a,i)=>`<g transform="rotate(${a} 160 140)"><rect x="152" y="60" width="16" height="40" rx="4" fill="#6B6F8E" class="mv" style="--dy:18px;${dl(.6)}"/></g>`).join('')}
+    <circle cx="160" cy="140" r="6" fill="#C9CBE0"/>
+    <rect x="290" y="90" width="80" height="34" rx="6" fill="#1A1A2E" stroke="${C.soft}" class="mv" style="--dy:90px;--dur:1s"/>${label(330,80,"battery out",{fill:C.amber,size:12})}`),
+  pts:["Remove the battery first so the drill can't start by accident.","Open the chuck, insert the bit straight and deep enough to grip the shank.","Tighten the chuck firmly. Give the bit a tug to check it's secure."]},
+ {t:"Set mode, clutch and direction", s:()=>S(`
+    <circle cx="150" cy="140" r="80" fill="${C.panel2}"/>
+    <g class="turn" style="--deg:-120deg">${[...Array(8)].map((_,i)=>`<text x="150" y="80" font-size="14" font-weight="700" text-anchor="middle" fill="#fff" transform="rotate(${i*40} 150 140)">${i===7?'⚒':i*3+1}</text>`).join('')}</g>
+    <path d="M150 48 l-8 -14 h16 Z" fill="${C.amber}"/>
+    ${label(310,100,"Drill mode",{fill:C.amber})}${label(310,122,"for holes",{fill:C.soft,size:12,w:400})}
+    ${label(310,170,"Clutch: start low",{fill:C.amber})}${label(310,192,"for screws",{fill:C.soft,size:12,w:400})}`),
+  pts:["For holes, set the drill mode (usually the drill-bit symbol, highest setting).","For screws, use the clutch: start on a low number and go up until the screw sits flush.","Check the direction switch: forward to drill, reverse to back out."],
+  tip:"The clutch slips when it reaches the set torque, which stops you stripping screws."},
+ {t:"Clamp and mark the workpiece", s:()=>S(`
+    <rect x="40" y="200" width="340" height="20" fill="${C.panel2}"/>
+    <rect x="130" y="150" width="180" height="50" fill="${C.wood}"/>
+    <g class="mv" style="--dy:38px"><rect x="90" y="60" width="16" height="70" fill="${C.amber}"/><rect x="80" y="110" width="60" height="14" rx="4" fill="${C.amber}"/></g>
+    <circle cx="240" cy="150" r="5" fill="#1A1A2E" class="pop" style="${dl(1.2)}"/>${label(240,135,"mark",{size:12,cls:'fade',st:dl(1.2)})}`),
+  pts:["Clamp the work to the bench. Never hold small pieces by hand.","Mark the hole centre with a pencil or awl so the bit doesn't wander.","For a set depth, wrap tape around the bit as a depth flag."]},
+ {t:"Drill straight and steady", s:()=>S(`
+    <rect x="300" y="60" width="50" height="160" fill="${C.wood}"/><rect x="292" y="40" width="66" height="14" rx="3" fill="${C.amber}"/>
+    ${drill(`class="mv" style="--dx:30px;--dur:2.5s;--it:infinite;--dir:alternate"`)}
+    ${[0,1,2,3].map(i=>`<circle cx="${300}" cy="${118+i*3}" r="3" fill="${C.wood}" class="rise" style="${dl(i*.4)}"/>`).join('')}`),
+  pts:["Hold the drill with both hands where designed, square to the surface.","Start slowly to seat the bit, then increase speed.","Apply steady pressure. On deep holes, back out now and then to clear chips.","Ease off as the bit breaks through the back."],
+  warn:"If the bit jams, release the trigger at once. Don't fight the twist."},
+ {t:"Finish and put it away", s:()=>S(`${drill('','')}
+    <path d="M330 80 a30 30 0 1 0 0 70" fill="none" stroke="${C.amber}" stroke-width="4" class="draw" style="--len:120"/><path d="M322 150 l10 2 l-4 -10" fill="${C.amber}"/>${label(350,180,"reverse out",{fill:C.amber,size:12})}
+    ${check(360,240,1.4)}`),
+  pts:["Reverse to back a stuck bit or screw out.","Release the trigger and wait for the chuck to stop before setting the drill down.","Remove the battery, take out the bit, and return everything to its place.","Sweep up chips and log off."]}
+],
+sander: [
+ {t:"Set up safely", s:()=>checklist("Sander check",["Request form + supervisor","QR scanned","Glasses + dust mask ON","Work clamped","Dust bag fitted"],C.teal),
+  pts:["Glasses and a dust mask on. MDF dust is especially fine.","Clamp the work so it can't skate away.","Fit the dust bag or connect extraction."]},
+ {t:"Pick the right grit", s:()=>S(`
+    ${[["80",'coarse',3,80],["120",'medium',5,190],["180–240",'fine',9,300]].map((g,i)=>`<g class="pop" style="${dl(i*.4)}"><rect x="${g[3]-45}" y="60" width="90" height="110" rx="6" fill="#C68B4E"/>
+      ${[...Array(g[2]*g[2])].map((_,k)=>`<circle cx="${g[3]-38+ (k%g[2])*(76/g[2])+4}" cy="${68+Math.floor(k/g[2])*(94/g[2])+4}" r="${4-i*1.1}" fill="#7A5230"/>`).join('')}
+      ${label(g[3],196,g[0])}${label(g[3],216,g[1],{fill:C.soft,size:12,w:400})}</g>`).join('')}
+    <path d="M70 245 H330" stroke="${C.amber}" stroke-width="3" class="draw" style="--len:260;${dl(1.2)}"/><path d="M330 238 l14 7 l-14 7 Z" fill="${C.amber}" class="fade" style="${dl(2.4)}"/>`),
+  pts:["Lower number = coarser. Start coarse to remove marks, finish fine for smoothness.","Typical order: 80 → 120 → 180 or 240.","Don't skip more than one grit step, or scratches stay visible."]},
+ {t:"Fit the sanding sheet", s:()=>S(`
+    <rect x="130" y="70" width="160" height="160" rx="18" fill="${C.teal}"/>
+    <g class="mv" style="--dy:150px;--dur:1.2s;transform:translateY(-150px)"><rect x="140" y="80" width="140" height="140" rx="10" fill="#C68B4E"/>
+      ${[[170,110],[250,110],[170,190],[250,190],[210,150]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="7" fill="#2A2A44"/>`).join('')}</g>
+    ${label(210,262,"line up the dust holes",{fill:C.soft,size:12})}`),
+  pts:["Unplug or remove the battery first.","Press the hook-and-loop sheet on, lining up the holes with the pad's dust holes.","Make sure it's centred and flat with no folds."]},
+ {t:"Sand with the grain", s:()=>S(`
+    <rect x="40" y="170" width="340" height="40" fill="${C.wood}"/>
+    <g class="mv" style="--dx:180px;--dur:2.4s;--it:infinite;--dir:alternate"><g class="jit"><rect x="60" y="110" width="90" height="60" rx="12" fill="${C.teal}"/><rect x="85" y="80" width="40" height="34" rx="8" fill="#0E7F69"/></g></g>
+    ${[0,1,2].map(i=>`<circle cx="${120+i*80}" cy="168" r="3" fill="#F3D9B1" class="rise" style="${dl(i*.6)}"/>`).join('')}
+    <path d="M70 240 H350" stroke="${C.amber}" stroke-width="3"/><path d="M350 233 l14 7 l-14 7 Z" fill="${C.amber}"/>${label(210,265,"with the grain · light pressure",{fill:C.amber,size:12})}`),
+  pts:["Start the sander, then place it flat on the work.","Move slowly in overlapping passes, following the grain.","Light pressure: the sander's weight is enough. Pressing harder only burns the paper.","Keep it flat on edges, or you'll round them over."]},
+ {t:"Stop, lift, clean up", s:()=>S(`
+    <rect x="40" y="190" width="340" height="40" fill="${C.wood}"/>
+    <g class="mv" style="--dy:-60px;${dl(1.6)}"><rect x="160" y="130" width="90" height="60" rx="12" fill="${C.teal}"/><rect x="185" y="100" width="40" height="34" rx="8" fill="#0E7F69"/></g>
+    <rect x="320" y="40" width="40" height="40" rx="8" fill="${C.red}"/>${label(340,66,"OFF",{size:12})}
+    ${check(90,90,2.4)}`),
+  pts:["Switch off and let the pad stop before lifting and setting it down.","Empty the dust bag and wipe down the bench.","Feel the surface: smooth to the touch means done."]}
+],
+jigsaw: [
+ {t:"Clamp with the cut line overhanging", s:()=>S(`
+    <rect x="40" y="170" width="220" height="60" fill="${C.panel2}"/>
+    <rect x="60" y="150" width="300" height="20" fill="${C.wood}"/>
+    <line x1="320" y1="150" x2="320" y2="170" stroke="#1A1A2E" stroke-width="2" stroke-dasharray="4 3"/>
+    <g class="mv" style="--dy:40px"><rect x="120" y="60" width="16" height="70" fill="${C.amber}"/><rect x="108" y="110" width="40" height="14" rx="4" fill="${C.amber}"/></g>
+    ${label(320,130,"cut line clear of the bench",{fill:C.soft,size:12})}`),
+  pts:["Approved request form, supervisor present, QR scanned, glasses on.","Clamp the board so the cut line hangs over the bench edge.","Check nothing is underneath the cut path: bench, clamp or cord."]},
+ {t:"Fit the right blade", s:()=>S(`
+    <rect x="150" y="40" width="120" height="70" rx="14" fill="${C.blue}"/>
+    <rect x="190" y="110" width="40" height="20" fill="${C.steel}"/>
+    <g class="mv" style="--dy:-70px;--dur:1.2s;transform:translateY(70px)"><rect x="203" y="125" width="14" height="90" fill="#C9CBE0"/>${[0,1,2,3,4,5].map(i=>`<path d="M217 ${135+i*13} l7 6 l-7 3" fill="#C9CBE0"/>`).join('')}</g>
+    ${label(320,170,"teeth face forward",{fill:C.amber,size:12})}<rect x="290" y="60" width="70" height="28" rx="6" fill="#1A1A2E" stroke="${C.soft}" class="mv" style="--dy:60px;--dur:.8s"/>${label(325,50,"battery out",{fill:C.amber,size:12})}`),
+  pts:["Remove the battery or unplug first.","Choose a blade for the material: wood, plastic or metal (printed on the blade).","Insert it with the teeth facing forward and lock the blade clamp."]},
+ {t:"Mark the line, drill a start hole", s:()=>S(`
+    <rect x="60" y="50" width="300" height="180" rx="6" fill="${C.wood}"/>
+    <path d="M120 190 C 120 80, 300 80, 300 190" fill="none" stroke="#1A1A2E" stroke-width="3" class="draw" style="--len:330"/>
+    <circle cx="210" cy="150" r="10" fill="#2A2A44" class="pop" style="${dl(1.6)}"/>${label(210,180,"start hole for inside cuts",{fill:'#1A1A2E',size:12,cls:'fade',st:dl(1.6)})}`),
+  pts:["Draw a clear cut line.","For a cut-out inside the board, drill a hole bigger than the blade inside the waste area to start from.","Cut on the waste side of the line."]},
+ {t:"Shoe flat, then start", s:()=>S(`
+    <rect x="40" y="180" width="340" height="24" fill="${C.wood}"/>
+    <rect x="120" y="164" width="150" height="14" rx="3" fill="${C.steel}"/>
+    <rect x="140" y="80" width="120" height="70" rx="14" fill="${C.blue}"/><rect x="170" y="150" width="40" height="16" fill="${C.steel}"/>
+    <g class="shake"><rect x="184" y="160" width="12" height="60" fill="#C9CBE0"/></g>
+    ${label(320,120,"blade clear of the edge",{fill:C.amber,size:12})}`),
+  pts:["Rest the base plate (shoe) flat on the work with the blade not yet touching the edge.","Pull the trigger and let the blade reach speed.","Then move forward into the material."]},
+ {t:"Follow the line slowly", s:()=>S(`
+    <rect x="40" y="40" width="340" height="200" rx="6" fill="${C.wood}"/>
+    <path d="M60 200 C 120 60, 300 60, 360 200" fill="none" stroke="#1A1A2E" stroke-width="2" stroke-dasharray="6 5"/>
+    <g><rect x="-26" y="-14" width="52" height="28" rx="8" fill="${C.blue}"/><circle cx="20" cy="0" r="3" fill="#fff"/><animateMotion dur="4s" repeatCount="indefinite" rotate="auto" path="M60 200 C 120 60, 300 60, 360 200"/></g>
+    ${label(210,265,"top view · gentle curves, cord behind you",{fill:C.soft,size:12})}`),
+  pts:["Guide gently along the line. Let the blade cut, don't push hard.","Keep the cord behind the tool and away from the blade.","Don't twist the saw to force a tight curve: make relief cuts instead."],
+  warn:"Keep both hands on the tool or the work clamp, never under the board."},
+ {t:"Stop, wait, lift out", s:()=>S(`
+    <rect x="40" y="180" width="340" height="24" fill="${C.wood}"/>
+    <g class="mv" style="--dy:-70px;${dl(1.8)}"><rect x="140" y="80" width="120" height="70" rx="14" fill="${C.blue}"/><rect x="120" y="164" width="150" height="14" rx="3" fill="${C.steel}"/><rect x="170" y="150" width="40" height="16" fill="${C.steel}"/><rect x="184" y="160" width="12" height="60" fill="${C.laser}" class="pulse"/></g>
+    ${label(300,60,"blade is HOT",{fill:C.laser,size:13,cls:'fade',st:dl(2.2)})}`),
+  pts:["Release the trigger at the end of the cut and wait for the blade to stop.","Only then lift the saw out.","The blade is hot: don't touch it. Battery out before changing or storing."]}
+]
+};
+
+/* fix template literal used in beamo layer labels */
+T.beamo[2].s = ()=>S(`
+    <rect x="50" y="30" width="320" height="220" rx="12" fill="#fff"/>
+    ${label(70,60,"Layers",{a:'start',fill:'#1A1A2E',size:16,w:800})}
+    ${[["Cut",C.red,150],["Score",C.blue,90],["Engrave","#1A1A2E",120]].map((r,i)=>`
+      <rect x="70" y="${85+i*52}" width="18" height="18" rx="4" fill="${r[1]}"/>
+      ${label(100,99+i*52,r[0],{a:'start',fill:'#1A1A2E',size:14})}
+      <rect x="180" y="${92+i*52}" width="160" height="6" rx="3" fill="#E1E3EC"/>
+      <circle cx="180" cy="${95+i*52}" r="9" fill="${r[1]}" class="mv" style="--dx:${r[2]}px;${dl(.3+i*.4)}"/>
+    `).join('')}
+    ${label(260,232,"power + speed per layer",{fill:'#565A73',size:12,w:400})}`);
+
+/* ---------- ADDED: DISC & BELT SANDER (Polo MM491G) ---------- */
+const sanderArt = (o={}) => {
+  const disc = o.discCls ?? 'spinrev';
+  return S(`
+  <rect x="40" y="220" width="340" height="26" rx="6" fill="${C.panel2}"/>
+  <rect x="150" y="128" width="200" height="92" rx="14" fill="#2F4F7F"/>
+  <rect x="300" y="190" width="34" height="20" rx="4" fill="${o.on===false?C.red:C.teal}"/>
+  <!-- belt unit on top -->
+  <rect x="170" y="62" width="200" height="40" rx="20" fill="#3A3A55" stroke="${C.steel}" stroke-width="2"/>
+  <circle cx="190" cy="82" r="14" fill="${C.steel}"/><circle cx="350" cy="82" r="14" fill="${C.steel}"/>
+  <line x1="350" y1="62" x2="190" y2="62" stroke="#C68B4E" stroke-width="6"/>
+  ${o.belt!==false?`<line x1="350" y1="62" x2="190" y2="62" stroke="#7A5230" stroke-width="6" class="${o.beltCls||'run'}" style="stroke-dasharray:6 8"/>`:''}
+  <rect x="160" y="34" width="10" height="34" rx="2" fill="${C.amber}"/>
+  <rect x="236" y="102" width="70" height="26" fill="#3A3A55"/>
+  <!-- disc on the left -->
+  <circle cx="105" cy="150" r="64" fill="#3A3A55"/>
+  <g class="${disc}" style="--dur:.45s">
+    <circle cx="105" cy="150" r="58" fill="#C68B4E"/>
+    ${[0,45,90,135].map(a=>`<line x1="47" y1="150" x2="163" y2="150" stroke="#7A5230" stroke-width="3" transform="rotate(${a} 105 150)"/>`).join('')}
+    <circle cx="105" cy="150" r="8" fill="${C.steel}"/>
+  </g>
+  <rect x="30" y="170" width="150" height="10" rx="2" fill="${C.steel}"/>
+  <rect x="44" y="180" width="8" height="40" fill="${C.steel}"/>
+  ${o.extra||''}`);
+};
+T.sander = [
+ {t:"Paperwork, people and gear", s:()=>checklist("Before the sander",["Request form + supervisor","QR scanned to log use","Glasses + dust mask ON","NO gloves, sleeves secured","Hair tied, nothing loose"],C.teal),
+  pts:["The sander is a power tool: approved request form, supervision, and a QR log every session.","Safety glasses and a dust mask on. Fine wood dust goes everywhere.","No gloves: the belt and disc can grab them and pull your hand in."],
+  warn:"No form, no supervisor, no sander."},
+ {t:"Know the parts", s:()=>sanderArt({belt:false,discCls:'',extra:`
+    ${label(105,36,"Disc 150 mm",{fill:C.amber,cls:'fade'})}<line x1="105" y1="42" x2="105" y2="88" stroke="${C.amber}" stroke-width="2" class="fade"/>
+    ${label(270,26,"Belt 4 × 36 in",{fill:C.amber,cls:'fade',st:dl(.3)})}
+    ${label(120,24,"Work support",{fill:C.amber,size:11,cls:'fade',st:dl(.6)})}
+    ${label(105,200,"Table + miter gauge",{fill:C.amber,size:11,cls:'fade',st:dl(.9)})}
+    ${label(317,182,"ON/OFF",{fill:'#fff',size:10,cls:'fade',st:dl(1.2)})}
+    ${label(271,120,"Dust port",{fill:'#fff',size:10,cls:'fade',st:dl(1.5)})}`}),
+  pts:["Disc (side): round curves and corners.","Belt (top): flat faces and straight edges. The work support stops the belt pushing your work away.","Table + miter gauge: tilts 0–45° for angled edges.","Tracking knob keeps the belt centred; dust port connects to extraction."]},
+ {t:"Check before you switch on", s:()=>sanderArt({belt:false,discCls:'',extra:`
+    <g class="mv" style="--dx:60px;--dy:-30px;--dur:2s;--it:infinite;--dir:alternate"><circle cx="80" cy="140" r="20" fill="none" stroke="${C.amber}" stroke-width="5"/><line x1="94" y1="154" x2="110" y2="170" stroke="${C.amber}" stroke-width="6" stroke-linecap="round"/></g>
+    <g class="pop" style="${dl(1)}"><line x1="180" y1="170" x2="180" y2="182" stroke="${C.red}" stroke-width="2"/>${label(205,166,"gap ≤ 2 mm",{fill:C.red,size:12})}</g>
+    ${check(380,40,1.6)}`}),
+  pts:["Machine OFF. Sanding paper on belt and disc: no tears, no peeling edges.","Belt runs centred on the rollers (tracking).","Gap between the table edge and the disc: about 2 mm or less, so small pieces can't be dragged in.","Table and work support locked tight; dust extraction connected."]},
+ {t:"Switch on, let it reach speed", s:()=>sanderArt({extra:`<g class="pop">${label(317,182,"ON",{size:11})}</g>`}),
+  pts:["Stand to the side, then switch on.","Wait a few seconds for the belt and disc to reach full speed before touching any wood.","Strange noise or wobble? Switch off and call staff."]},
+ {t:"Disc: use the DOWN side only", s:()=>sanderArt({extra:`
+    <path d="M105 150 L105 92 A58 58 0 0 0 47 150 Z" fill="${C.teal}" opacity=".55" class="pulse"/>
+    <path d="M105 150 L105 92 A58 58 0 0 1 163 150 Z" fill="${C.red}" opacity=".5"/>
+    <path d="M62 100 a50 50 0 0 0 -8 40" fill="none" stroke="#fff" stroke-width="3"/><path d="M50 136 l4 10 l6 -9 Z" fill="#fff"/>
+    ${label(58,74,"USE ↓",{fill:C.teal,size:14})}${label(160,74,"NO ↑",{fill:C.red,size:14})}`}),
+  pts:["The disc spins one way, so one half moves DOWN towards the table and the other half moves UP.","Only sand on the half moving down: it presses your work onto the table.","The up side lifts the work and can throw it. Check the direction arrow on the machine."],
+  warn:"Never sand on the side that spins upward."},
+ {t:"Disc technique: round curves", s:()=>sanderArt({extra:`
+    <g class="mv" style="--dx:16px;--dur:1.4s;--it:infinite;--dir:alternate"><path d="M10 168 L44 168 Q56 150 50 124 L10 124 Z" fill="${C.wood}" stroke="${C.woodD}"/></g>
+    ${[0,1,2].map(i=>`<circle cx="${50+i*4}" cy="${150-i*6}" r="2.5" fill="#F3D9B1" class="rise" style="${dl(i*.5)}"/>`).join('')}
+    ${label(40,206,"keep it flat on the table",{fill:C.soft,size:11})}`}),
+  pts:["Hold the work flat on the table with both hands, fingers well back from the disc.","Light pressure. Keep it moving and rotate it to follow curves.","Sand to your line slowly: you can always take more off, never put it back.","Pieces shorter than about 50 mm: don't hold them by hand, ask staff."]},
+ {t:"Belt: flat faces against the support", s:()=>sanderArt({extra:`
+    <g class="mv" style="--dx:30px;--dur:1.6s;--it:infinite;--dir:alternate"><rect x="172" y="30" width="80" height="30" rx="2" fill="${C.wood}" stroke="${C.woodD}"/></g>
+    ${[0,1,2].map(i=>`<circle cx="${190+i*20}" cy="58" r="2.5" fill="#F3D9B1" class="rise" style="${dl(i*.4)}"/>`).join('')}
+    <path d="M330 48 H260" stroke="${C.amber}" stroke-width="3"/><path d="M262 42 l-10 6 l10 6 Z" fill="${C.amber}"/>${label(296,40,"belt moves this way",{fill:C.amber,size:11})}`}),
+  pts:["Rest the work on the belt, pushed against the work support. The belt pulls towards it, so the support takes the force.","Hold flat and move gently side to side across the belt width.","Keep fingers away from the rollers at the belt ends: they are pinch points."]},
+ {t:"Keep moving, wood only", s:()=>sanderArt({extra:`
+    ${[0,1,2].map(i=>`<path d="M${70+i*16} 136 c -8 -12 8 -20 0 -32" stroke="${C.soft}" stroke-width="3" fill="none" class="rise" style="${dl(i*.5)}"/>`).join('')}
+    ${label(330,30,"metal = sparks",{fill:C.red,size:12})}${cross(330,54,.4)}`}),
+  pts:["Staying in one spot overheats the wood: it burns, darkens and smells. Keep moving.","Wood only today. Sanding metal makes sparks, and sparks plus wood dust in the extractor can start a fire.","Swap to a finer grit (80 → 120) for a smoother finish. Staff change belts and discs."],
+  warn:"Smoke or a burning smell: lift the work off, switch off, tell staff."},
+ {t:"Switch off, wait, clean up", s:()=>sanderArt({on:false,discCls:'spindown',beltCls:'stopping',extra:`${label(317,182,"OFF",{size:11})}<g class="pop" style="${dl(3.2)}">${label(270,150,"STOPPED",{fill:C.teal,size:15})}</g>`}),
+  pts:["Lift your work off, then switch off.","Wait until the belt and disc have completely stopped before reaching near them.","Brush dust off the table with a brush (not your hand) and empty the dust bag if full.","Log off on the QR sheet and leave it ready for the next maker."]}
+];
+
+/* ---------- ADDED: project subtabs ---------- */
+document.querySelectorAll('[data-proj]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('[data-proj]').forEach(x=>x.setAttribute('aria-selected', x===b));
+  document.querySelectorAll('[data-proj-panel]').forEach(p=>p.style.display = p.dataset.projPanel===b.dataset.proj ? 'flex' : 'none');
+}));
+
+/* ---------- STEPPER ---------- */
+function mount(el, key){
+  const steps = T[key]; let i = 0;
+  el.innerHTML = `<div class="rail" role="tablist" aria-label="Steps"></div><div class="bar"><i></i></div>
+    <div class="stage"><div class="scene"><span class="tag"></span><div class="art"></div></div>
+    <div class="info" aria-live="polite"><div class="num"></div><h3></h3><ul></ul><div class="notes"></div>
+    <div class="nav-row"><button class="btn ghost prev" style="color:var(--ink)">← Back</button><span class="count"></span><button class="btn next">Next step →</button></div></div></div>`;
+  const rail = el.querySelector('.rail');
+  rail.innerHTML = steps.map((s,k)=>`<button role="tab" data-k="${k}"><span class="n">${k+1}</span>${s.t.split(' ').slice(0,3).join(' ')}</button>`).join('');
+  const go = (k)=>{
+    i = Math.max(0, Math.min(steps.length-1, k)); const s = steps[i];
+    el.querySelector('.art').innerHTML = s.s();
+    el.querySelector('.tag').textContent = `Step ${i+1}`;
+    el.querySelector('.num').textContent = `Step ${i+1} of ${steps.length}`;
+    el.querySelector('h3').textContent = s.t;
+    el.querySelector('ul').innerHTML = s.pts.map(p=>`<li>${p}</li>`).join('');
+    el.querySelector('.notes').innerHTML = (s.tip?`<div class="note tip"><b>Tip</b><span>${s.tip}</span></div>`:'') + (s.warn?`<div class="note warn"><b>Danger</b><span>${s.warn}</span></div>`:'');
+    el.querySelector('.count').textContent = `${i+1} / ${steps.length}`;
+    el.querySelector('.bar i').style.width = `${(i+1)/steps.length*100}%`;
+    el.querySelector('.prev').disabled = i===0;
+    const nx = el.querySelector('.next'); nx.textContent = i===steps.length-1 ? 'Start again ↺' : 'Next step →';
+    rail.querySelectorAll('button').forEach((b,k)=>{b.classList.toggle('cur',k===i);b.classList.toggle('done',k<i);b.setAttribute('aria-selected',k===i);});
+    const cur = rail.children[i]; cur && cur.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'});
+  };
+  rail.addEventListener('click',e=>{const b=e.target.closest('button'); if(b) go(+b.dataset.k);});
+  el.querySelector('.prev').onclick=()=>go(i-1);
+  el.querySelector('.next').onclick=()=>go(i===steps.length-1?0:i+1);
+  el.tabIndex = -1;
+  el.addEventListener('keydown',e=>{ if(e.key==='ArrowRight') go(i+1); if(e.key==='ArrowLeft') go(i-1); });
+  go(0);
+}
+document.querySelectorAll('.tut').forEach(el=>mount(el, el.dataset.tut));
+
+/* power tool sub-tabs */
+document.querySelectorAll('.subtabs button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.subtabs button').forEach(x=>x.setAttribute('aria-selected', x===b));
+  const el = document.getElementById('pt-tut'); el.dataset.tut = b.dataset.sub; mount(el, b.dataset.sub);
+}));
+
+/* quiz */
+document.querySelectorAll('.quiz').forEach(q=>q.addEventListener('click',()=>q.classList.toggle('show')));
+
+/* routing */
+const views = ['start','beamo','bandsaw','power-tools','sander','machines','make-for-good','bug-bnb','cute-projects'];
+function route(){
+  const h = location.hash.slice(1); const v = views.includes(h) ? h : 'start';
+  document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on', s.dataset.view===v));
+  document.querySelectorAll('nav a').forEach(a=>{ if(a.getAttribute('href')==='#'+v) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); });
+  const t = document.querySelector(`.view[data-view="${v}"] .tut`); if(t){ const k=t.dataset.tut; mount(t,k); }
+  window.scrollTo(0,0);
+}
+window.addEventListener('hashchange', route); route();
+</script>
+</body>
+</html>
